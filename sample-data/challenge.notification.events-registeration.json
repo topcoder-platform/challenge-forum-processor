@@ -1,0 +1,13 @@
+{
+  "topic": "challenge.notification.events",
+  "originator": "topcoder-challenges-api",
+  "timestamp": "2019-11-24T00:22:41.164Z",
+  "mime-type": "application/json",
+  "payload": {
+    "type": "USER_REGISTRATION",
+    "data": {
+      "challengeId": "d28f85e8-1fa1-43d1-8fee-a44119ccee55",
+      "userId": 151743
+    }
+  }
+}

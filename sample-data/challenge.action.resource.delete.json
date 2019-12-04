@@ -1,0 +1,13 @@
+{
+  "topic": "challenge.notification.delete",
+  "originator": "topcoder-challenges-api",
+  "timestamp": "2019-11-24T00:22:41.164Z",
+  "mime-type": "application/json",
+  "payload": {
+    "id": "58a85d42-4b1f-4fd1-a448-60c611a97677",
+    "challengeId": "d28f85e8-1fa1-43d1-8fee-a44119ccee55",
+    "memberId": "8547899",
+    "memberHandle": "TonyJ",
+    "roleId": "67ad906d-a63a-4337-b9cc-0a311d2600ad"
+  }
+}

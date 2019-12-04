@@ -1,0 +1,15 @@
+image: starefossen/ruby-node:latest
+
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying the app"
+    - apt-get update -qy
+    - apt-get install -yqq ruby ruby-dev --silent
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
+  only:
+    - master

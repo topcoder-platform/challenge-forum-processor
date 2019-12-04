@@ -1,0 +1,41 @@
+{
+  "name": "challenge-forum-processor",
+  "version": "1.0.0",
+  "description": "Node app that runs as a processor, watching a kafka queue and interfacing with Rocket.chat to build private groups",
+  "main": "src/app.js",
+  "scripts": {
+    "format": "prettier-standard \"src/**/*.js\" \"test/**/*.js\" \"config/**/*.js\"",
+    "start": "node src/app.js",
+    "start:dev": "nodemon --watch src -e js src/app.js",
+    "lint": "standard \"src/**/*.js\"",
+    "lint:fix": "standard --fix \"src/**/*.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/topcoder-platform/challenge-forum-processor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/topcoder-platform/challenge-forum-processor/issues"
+  },
+  "homepage": "https://github.com/topcoder-platform/challenge-forum-processor#readme",
+  "dependencies": {
+    "config": "^3.2.4",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "no-kafka": "^3.4.3",
+    "rocketchat-api": "github:dhruvit-r/rocketchat-api-node",
+    "superagent": "^5.1.1",
+    "tc-core-library-js": "github:appirio-tech/tc-core-library-js",
+    "winston": "^3.2.1",
+    "winston-timestamp-colorize": "^1.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.1",
+    "prettier-standard": "^15.0.1",
+    "standard": "^14.3.1"
+  }
+}

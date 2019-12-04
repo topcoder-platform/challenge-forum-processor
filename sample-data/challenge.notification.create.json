@@ -1,0 +1,89 @@
+{
+  "topic": "challenge.notification.create",
+  "originator": "topcoder-challenges-api",
+  "timestamp": "2019-11-24T00:22:41.164Z",
+  "mime-type": "application/json",
+  "payload": {
+    "id": "d28f85e8-1fa1-43d1-8fee-a44119ccee55",
+    "created": "2019-11-26T21:18:17.342Z",
+    "createdBy": "pshah_manager",
+    "phases": [
+      {
+        "description": "Registration Phase",
+        "duration": 72,
+        "id": "a93544bc-c165-4af4-b55e-18f3593b457a",
+        "isActive": true,
+        "name": "Registration"
+      },
+      {
+        "description": "Submission Phase",
+        "duration": 72,
+        "id": "6950164f-3c5e-4bdc-abc8-22aaf5a1bd49",
+        "isActive": true,
+        "name": "Submission",
+        "predecessor": "a93544bc-c165-4af4-b55e-18f3593b457a"
+      },
+      {
+        "description": "Review Phase",
+        "duration": 48,
+        "id": "aa5a3f78-79e0-4bf7-93ff-b11e8f5b398b",
+        "isActive": true,
+        "name": "Review",
+        "predecessor": "6950164f-3c5e-4bdc-abc8-22aaf5a1bd49"
+      },
+      {
+        "description": "Appeals Phase",
+        "duration": 24,
+        "id": "1c24cfb3-5b0a-4dbd-b6bd-4b0dff5349c6",
+        "isActive": true,
+        "name": "Appeals",
+        "predecessor": "aa5a3f78-79e0-4bf7-93ff-b11e8f5b398b"
+      },
+      {
+        "description": "Appeals Response Phase",
+        "duration": 24,
+        "id": "797a6af7-cd3f-4436-9fca-9679f773bee9",
+        "isActive": true,
+        "name": "Appeals Response",
+        "predecessor": "1c24cfb3-5b0a-4dbd-b6bd-4b0dff5349c6"
+      }
+    ],
+    "typeId": "45415132-79fa-4d13-a9ac-71f50020dc10",
+    "track": "DEVELOP",
+    "name": "Sample ABC",
+    "description": "Sample ABC",
+    "reviewType": "community",
+    "tags": [
+      "xCode"
+    ],
+    "groups": [],
+    "prizeSets": [
+      {
+        "type": "Challenge prizes",
+        "prizes": [
+          {
+            "type": "money",
+            "value": 1000
+          },
+          {
+            "type": "money",
+            "value": 500
+          }
+        ]
+      },
+      {
+        "type": "Copilot payment",
+        "prizes": [
+          {
+            "type": "Copilot payment",
+            "value": 300
+          }
+        ]
+      }
+    ],
+    "startDate": "2019-11-26T22:17:39.580Z",
+    "timelineTemplateId": "a93544bc-c165-4af4-b55e-18f3593b457a",
+    "projectId": 128,
+    "status": "Active"
+  }
+}
