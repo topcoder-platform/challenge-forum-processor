@@ -1,13 +1,16 @@
+const util = require('util')
 const logger = require('../../utils/logger.util')
-const constants = require('../../constants')
+const { manageRocketUser } = require('../../services/rokect')
+const { manageVanillaUser } = require('../../services/vanilla')
 const {
   getTopcoderUserHandle: getUserHandle,
-  findGroup,
-  getRocketUser,
-  inviteUserToGroup,
-  kickUserFromGroup,
   processPayload
 } = require('./helpers')
+
+const services = [
+  manageRocketUser,
+  manageVanillaUser
+]
 
 /**
  * Handle a set of messages from the Kafka topic
@@ -16,47 +19,19 @@ const {
  */
 async function handler (messageSet, topic) {
   for (const item of messageSet) {
-    const { challengeId, userId, action, handle } = processPayload(item, topic)
+    const data = processPayload(item, topic)
     try {
-      // Find User
-      const userHandle = handle || (await getUserHandle(userId))
-
-      // Find RocketChat Group
-      const group = await findGroup(challengeId)
-
-      // Find user
-      const user = await getRocketUser(userHandle)
-
-      // Choose action to perform
-      switch (action) {
-        case constants.USER_ACTIONS.INVITE:
-          // Invite user to group
-          await inviteUserToGroup(group._id, user._id)
-          logger.debug(
-            `Added ${userHandle} to group ${
-              group.name
-            } for challenge ${challengeId}`
-          )
-          break
-        case constants.USER_ACTIONS.KICK:
-          // Kick user from group
-          await kickUserFromGroup(group._id, user._id)
-          logger.debug(
-            `Removed ${userHandle} from group ${
-              group.name
-            } for challenge ${challengeId}`
-          )
-          break
-        default:
-          // Unrecognized action. Throw error
-          throw new Error('Unrecognized action')
-      }
+      data.handle = data.handle || (await getUserHandle(data.userId))
     } catch (err) {
-      // Log the error
-      logger.error(`[Challenge ID: ${challengeId}] ${err.message}`)
-      logger.error(err.stack)
+      logger.error(util.inspect(err))
+      continue
+    }
+    for (const service of services) {
+      await service(data)
+        .catch(err => {
+          logger.error(util.inspect(err))
+        })
     }
   }
 }
-
 module.exports = handler

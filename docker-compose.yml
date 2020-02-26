@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
     ports:
         - 27017:27017
-    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+    command: mongod --oplogSize 128 --replSet rs0
 
   mongo-init-replica:
     image: mongo
@@ -64,4 +64,22 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "challenge.notification.create:1:1"
+      KAFKA_CREATE_TOPICS: "challenge.notification.create:1:1,challenge.notification.events:1:1,challenge.action.resource.create:1:1,challenge.action.resource.delete:1:1"
+
+  mysql-local:
+    image: mysql
+    container_name: mysql-local
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE=dbname
+      - MYSQL_ROOT_PASSWORD=root
+    command: --default-authentication-plugin=mysql_native_password
+  vanilla-local:
+    build:
+      context: ./docker/vanilla
+    container_name: vanilla-local
+    ports:
+      - 80:80
+    links:
+      - mysql-local

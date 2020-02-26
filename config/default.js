@@ -32,6 +32,10 @@ module.exports = {
     USERNAME: process.env.ROCKETCHAT_USERNAME || 'rocket',
     PASSWORD: process.env.ROCKETCHAT_PASSWORD || 'rocket'
   },
+  VANILLA: {
+    API_URL: process.env.VANILLA_API_URL || 'http://localhost/api/v2',
+    ADMIN_ACCESS_TOKEN: process.env.VANILLA_ADMIN_ACCESS_TOKEN
+  },
   TOPCODER: {
     AUTH0_AUDIENCE: process.env.TOPCODER_AUTH0_AUDIENCE,
     AUTH0_CLIENT_ID: process.env.TOPCODER_AUTH0_CLIENT_ID,

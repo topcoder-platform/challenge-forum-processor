@@ -2,17 +2,18 @@
 
 ## Description
 
-This is a Node app that runs as a processor, watching a kafka queue and interfacing with Rocket.chat to build private groups to potentially replace the challenge forums.
+This is a Node app that runs as a processor, watching a kafka queue and interfacing with Rocket.chat and/or Vanilla forum to build private groups to potentially replace the challenge forums.
 
 ## Requirements
 
 - [Node](https://nodejs.org/en/)
 - [Kafka](https://kafka.apache.org/)
 - [Rocket.chat](https://rocket.chat/)
+- [Vanilla Forum](https://open.vanillaforums.com/)
 
 ## Local Development
 
-Use `docker-compose.yml` file to spin up instances of Kafka and Rocketchat during local development.
+Use `docker-compose.yml` file to spin up instances of Kafka, Rocketchat as well as Vanilla and Mysql during local development.
 
 Install Docker, and run the following command:
 
@@ -20,9 +21,36 @@ Install Docker, and run the following command:
 $ docker-compose up -d
 ```
 
-Make sure `kafka`, `zookeeper`, `mongo` and `rocketchat` services have start by running `docker ps`.
+Make sure `kafka`, `zookeeper`, `mongo` and `rocketchat` services as well as the `mysql-lcal` and `vanilla-local` services have start by running `docker ps`.
 
 The default credentials of RocketChat are `rocket:rocket`, and the GUI should be accessible at http://127.0.0.1:3000/. You'll have to configure RocketChat before you'll be able to use it. Open the GUI, login and answer the prompts to configure it.
+
+### Setup Vanilla
+
+The GUI for Vanilla forum can be accessible at http://127.0.0.1/.
+On the Vanilla setup page, Mysql related fields must be filled like belows:
+
+  - Database Host: mysql-local
+  - Database Name: dbname
+  - Database User: root
+  - Database Password: root
+
+and the remaining fields could be configured like belows:
+
+  - Application Title: vanilla
+  - Admin Email: test@test.com
+  - Admin Username: admin
+  - Admin Password: admin
+  - Confirm Password: admin
+
+#### Generate Vanilla admin token
+Go to http://127.0.0.1/profile/tokens and generate a new token.
+
+Here is an example token for your reference:
+
+```
+va.D4GXlYezw7yQPvjGyhreExqg7Ryo7Ylt.TEwccQ.XjQM67_
+```
 
 ## Configuration
 
@@ -34,9 +62,9 @@ For quick-setup while development, use a `.env` file, and run `docker-compose up
 | DISABLE_LOGGING | Whether to disable logging | `false` |
 | LOG_LEVEL | Logging level | `debug` |
 | KAFKA_URL | Kafka connection string | `localhost:9092` |
-| KAFKA_CLIENT_CERT | Kafka client certificate (SSL). This gets precedence over the file path. | `undefined` |
+| KAFKA_CLIENT_CERT | Kafka client certificate (SSL). This gets precedence over the file path. | |
 | KAFKA_CLIENT_CERT_PATH | Path to kafka client certificate (SSL) file. | `./config/kafka_client.cer` |
-| KAFKA_CLIENT_CERT | Kafka client key (SSL). This gets precedence over the file path. | `undefined` |
+| KAFKA_CLIENT_CERT | Kafka client key (SSL). This gets precedence over the file path. | |
 | KAFKA_CLIENT_KEY_PATH | Path to kafka client key (SSL) file. | `./config/kafka_client.key` |
 | KAFKA_SSL_PASSPHRASE | Passphrase (for SSL) | `secret` |
 | ROCKETCHAT_PROTOCOL | Rocketchat Protocol | `http` |
@@ -44,11 +72,13 @@ For quick-setup while development, use a `.env` file, and run `docker-compose up
 | ROCKETCHAT_PORT | Rocketchat Port | `3000` |
 | ROCKETCHAT_USERNAME | Rocketchat Username | `rocket` |
 | ROCKETCHAT_PASSWORD | Rocketchat Password | `rocket` |
-| TOPCODER_AUTH0_AUDIENCE | Topcoder Auth0 Audience | `undefined` |
-| TOPCODER_AUTH0_CLIENT_ID | Topcoder Auth0 client ID | `undefined` |
-| TOPCODER_AUTH0_CLIENT_SECRET | Topcoder Auth0 Client Secret | `undefined` |
+| VANILLA_API_URL | Vanilla v2 API URL | `http://localhost/api/v2` |
+| VANILLA_ADMIN_ACCESS_TOKEN | Vanilla admin personal access token | |
+| TOPCODER_AUTH0_AUDIENCE | Topcoder Auth0 Audience | |
+| TOPCODER_AUTH0_CLIENT_ID | Topcoder Auth0 client ID | |
+| TOPCODER_AUTH0_CLIENT_SECRET | Topcoder Auth0 Client Secret | |
 | TOPCODER_AUTH0_PROXY_SERVER_URL | Topcoder Auth0 Proxy Server URL | `https://auth0proxy.topcoder-dev.com/token` |
-| TOPCODER_AUTH0_URL | Topcoder Auth0 URL | `undefined` |
+| TOPCODER_AUTH0_URL | Topcoder Auth0 URL | |
 | TOPCODER_API_URL | Topcoder API URL | `https://api.topcoder-dev.com` |
 | TOPCODER_ROOT_URL | Topcoder Root URL | `https://topcoder-dev.com` |
 
@@ -111,7 +141,9 @@ $ heroku config:set -a <app_name> \
   ROCKETCHAT_HOST="<value>" \
   ROCKETCHAT_PORT="<value>" \
   ROCKETCHAT_USERNAME="<value>" \
-  ROCKETCHAT_PASSWORD="<value>"
+  ROCKETCHAT_PASSWORD="<value>" \
+  VANILLA_API_URL="<value>" \
+  VANILLA_ADMIN_ACCESS_TOKEN="<value>"
 ```
 
 Use the following command to turn on the worker dyno and disable the web dyno:

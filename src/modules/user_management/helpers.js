@@ -1,6 +1,5 @@
 const _ = require('lodash')
 const constants = require('../../constants')
-const { rocketChatClient } = require('../../utils/rocket-client.util')
 const topcoderApi = require('../../utils/topcoder-api.util')
 
 /**
@@ -54,72 +53,7 @@ async function getTopcoderUserHandle (userId) {
   return userHandle
 }
 
-/**
- * Finds the RocketChat group corresponding to a Topcoder challenge
- * @param {String} challengeId
- */
-async function findGroup (challengeId) {
-  const groupData = await rocketChatClient.groups.listAll({
-    query: {
-      customFields: { challengeId }
-    },
-    count: 1
-  })
-  const group = _.get(groupData, 'groups[0]')
-  if (_.isUndefined(group)) {
-    throw new Error('Group not found for challenge.')
-  }
-  return group
-}
-
-/**
- * Gets a RocketChat user details of a user, given the Topcoder handle
- * @param {String} handle
- */
-async function getRocketUser (handle) {
-  const userInfo = await rocketChatClient.users.info({
-    username: handle
-  })
-  const user = _.get(userInfo, 'user')
-  if (_.isUndefined(user)) {
-    throw new Error('Rocketchat user not found')
-  }
-  return user
-}
-
-/**
- * Invites a RocketChat user to a RocketChat Group
- * @param {String} groupId
- * @param {String} userId
- */
-async function inviteUserToGroup (groupId, userId) {
-  const data = await rocketChatClient.groups.invite(groupId, userId)
-  const success = _.isEqual(_.get(data, 'success'), true)
-  if (_.isUndefined(success || !success)) {
-    throw new Error("Couldn't add user to group")
-  }
-  return success
-}
-
-/**
- * Kicks a RocketChat user from a RocketChat group
- * @param {String} groupId
- * @param {String} userId
- */
-async function kickUserFromGroup (groupId, userId) {
-  const data = await rocketChatClient.groups.kick(groupId, userId)
-  const success = _.isEqual(_.get(data, 'success'), true)
-  if (_.isUndefined(success || !success)) {
-    throw new Error("Couldn't remove user from group")
-  }
-  return success
-}
-
 module.exports = {
   getTopcoderUserHandle,
-  getRocketUser,
-  findGroup,
-  inviteUserToGroup,
-  kickUserFromGroup,
   processPayload
 }
