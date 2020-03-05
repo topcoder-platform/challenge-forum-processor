@@ -1,4 +1,4 @@
-#  Topcoder v5 Challenge Forum
+#  Topcoder v5 Challenge Forum Processor
 
 ## Description
 
