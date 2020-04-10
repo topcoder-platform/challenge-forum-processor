@@ -97,11 +97,12 @@ async function createVanillaCategory (challenge) {
   logger.info(`New category for challenge ${challenge.id} is created`)
   // create a dedicated role for the category
   const roleName = challenge.id
+  const roleDescription = challenge.name
   const { body: roles } = await vanillaClient.getAllRoles()
   if (_.map(roles, role => role.name).includes(roleName)) {
     throw new Error(`The role with name ${roleName} already exists`)
   }
-  const { body: role } = await vanillaClient.createRole({ name: roleName })
+  const { body: role } = await vanillaClient.createRole({ name: roleName, description: roleDescription })
   await vanillaClient.updateRolePermission(role.roleID, [{
     id: challengeCategory.categoryID,
     permissions: constants.VANILLA.CHALLENGE_ROLE_PERMISSIONS,
