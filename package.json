@@ -7,8 +7,10 @@
     "format": "prettier-standard \"src/**/*.js\" \"test/**/*.js\" \"config/**/*.js\"",
     "start": "node src/app.js",
     "start:dev": "nodemon --watch src -e js src/app.js",
-    "lint": "standard \"src/**/*.js\"",
-    "lint:fix": "standard --fix \"src/**/*.js\""
+    "setupData": "node scripts/setupData.js",
+    "cleanData": "node scripts/cleanData.js",
+    "lint": "standard \"src/**/*.js\" \"scripts/**/*.js\"",
+    "lint:fix": "standard --fix \"src/**/*.js\" \"scripts/**/*.js\""
   },
   "repository": {
     "type": "git",

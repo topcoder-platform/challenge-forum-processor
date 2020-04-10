@@ -40,6 +40,7 @@ module.exports = {
     DOCUMENT_CATEGORY_NAME: 'Code Documents',
     QUESTION_CATEGORY_NAME: 'Code Questions',
     CHALLENGE_OVERVIEW_TITLE: 'Challenge Overview',
+    CHALLENGES_FORUM_TITLE: 'Challenges Forum',
     CHALLENGE_WELCOME_TITLE: 'Welcome!',
     CHALLENGE_WELCOME_CONTENT: WELCOME_INFOMATION,
     CATEGORY_DISPLAY_STYLE: {

@@ -24,6 +24,22 @@ function getVanillaClient () {
           throw err
         })
     },
+    getCategories: (parentCategoryID) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      if (_.isNumber(parentCategoryID)) {
+        queryParams.parentCategoryID = parentCategoryID
+      }
+      return request.get(`${config.VANILLA.API_URL}/categories`)
+        .query(queryParams)
+    },
+    searchCategories: (categoryName, page = 1, limit = 30, expand = 'all') => {
+      return request.get(`${config.VANILLA.API_URL}/categories/search`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN, query: categoryName, page: page, limit: limit, expand: expand })
+    },
+    deleteCategory: (categoryId) => {
+      return request.delete(`${config.VANILLA.API_URL}/categories/${categoryId}`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+    },
     createRole: (data) => {
       return request.post(`${config.VANILLA.API_URL}/roles`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
@@ -41,6 +57,10 @@ function getVanillaClient () {
     },
     getAllRoles: () => {
       return request.get(`${config.VANILLA.API_URL}/roles`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+    },
+    deleteRole: (roleId) => {
+      return request.delete(`${config.VANILLA.API_URL}/roles/${roleId}`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
     },
     getUserByName: (username) => {
