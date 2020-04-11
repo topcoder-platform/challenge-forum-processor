@@ -60,9 +60,19 @@ async function manageVanillaUser (data) {
  * @param {Object} challenge the challenge data
  */
 async function createVanillaCategory (challenge) {
+  const { body: challengesForumCategory } = await vanillaClient.searchCategories(constants.VANILLA.CHALLENGES_FORUM_TITLE)
+  if (challengesForumCategory.length === 0) {
+    throw new Error(`The default parent category with name '${constants.VANILLA.CHALLENGES_FORUM_TITLE}' is not found`)
+  }
+
+  if (challengesForumCategory.length > 1) {
+    throw new Error(`Multiple categories with the name '${constants.VANILLA.CHALLENGES_FORUM_TITLE}' are found`)
+  }
+
   const { body: challengeCategory } = await vanillaClient.createCategory({
     name: challenge.name,
     urlcode: challenge.id,
+    parentCategoryID: challengesForumCategory[0].categoryID,
     displayAs: constants.VANILLA.CATEGORY_DISPLAY_STYLE.HEADING
   })
   const { body: questionCategory } = await vanillaClient.createCategory({
