@@ -56,7 +56,7 @@ async function deleteRoles () {
 async function deleteCategoryWithNestedCategories (categoryId) {
   const { body: nestedCategories } = await vanillaClient.getCategories(categoryId)
   for (const nestedCategory of nestedCategories) {
-    logger.info(`Deleting the category ${nestedCategory.name} ...`)
+    logger.debug(`Deleting the category ${nestedCategory.name} ...`)
     if (nestedCategory.children) {
       await deleteCategoryWithNestedCategories(nestedCategory.categoryID)
     }

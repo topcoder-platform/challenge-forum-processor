@@ -40,7 +40,9 @@ module.exports = {
     DOCUMENT_CATEGORY_NAME: 'Code Documents',
     QUESTION_CATEGORY_NAME: 'Code Questions',
     CHALLENGE_OVERVIEW_TITLE: 'Challenge Overview',
-    CHALLENGES_FORUM_TITLE: 'Challenges Forum',
+    DEVELOPMENT_FORUMS_TITLE: 'Development Forums',
+    DESIGN_FORUMS_TITLE: 'Design Forums',
+    DATA_SCIENCE_FORUMS_TITLE: 'Data Science Forums',
     CHALLENGE_WELCOME_TITLE: 'Welcome!',
     CHALLENGE_WELCOME_CONTENT: WELCOME_INFOMATION,
     CATEGORY_DISPLAY_STYLE: {
@@ -54,6 +56,11 @@ module.exports = {
       'comments.edit': true,
       'discussions.add': true,
       'discussions.view': true
+    },
+    CHALLENGE_TYPE: {
+      DEVELOP: 'DEVELOP',
+      DESIGN: 'DESIGN',
+      DATA_SCIENCE: 'DATA_SCIENCE'
     },
     PERMISSION_TYPE: {
       CATEGORY: 'category'
