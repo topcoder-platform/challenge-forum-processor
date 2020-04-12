@@ -1,16 +1,24 @@
 module.exports = {
   TOPCODER: {
     DEFAULT_CATEGORIES: [
-      'Round Tables',
-      'New Member Discussions',
-      'New Discussions',
-      'Algorithm Matches',
-      'Marathon Matches',
-      'NASA Tournament Lab',
-      'TopCoder Cookbook',
-      'High School Matches',
-      'Sponsor Discussions',
-      'Challenges Forum']
+      { title: 'Round Tables' },
+      { title: 'New Member Discussions' },
+      { title: 'New Discussions' },
+      { title: 'Algorithm Matches' },
+      { title: 'Marathon Matches' },
+      { title: 'NASA Tournament Lab' },
+      { title: 'TopCoder Cookbook' },
+      { title: 'High School Matches' },
+      { title: 'Sponsor Discussions' },
+      {
+        title: 'Challenges Forum',
+        children: [
+          { title: 'Development Forums' },
+          { title: 'Design Forums' },
+          { title: 'Data Science Forums' }
+        ]
+      }
+    ]
   },
   VANILLA: {
     ROLE_NAMES: [

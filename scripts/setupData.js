@@ -19,13 +19,24 @@ async function bootstrap () {
 async function createDefaultCategories () {
   try {
     logger.info('Creating categories...')
-    for (const title of data.TOPCODER.DEFAULT_CATEGORIES) {
-      const { body: category } = await vanillaClient.createCategory({
-        name: title,
-        urlcode: helper.generateUrlCode(title),
+    for (const tcCategory of data.TOPCODER.DEFAULT_CATEGORIES) {
+      const { body: vCategory } = await vanillaClient.createCategory({
+        name: tcCategory.title,
+        urlcode: helper.generateUrlCode(tcCategory.title),
         displayAs: constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES
       })
-      logger.debug(`The category '${category.name}' is created.`)
+      logger.debug(`The category '${vCategory.name}' is created.`)
+      if (tcCategory.children) {
+        for (const tcSubCategory of tcCategory.children) {
+          const { body: vSubCategory } = await vanillaClient.createCategory({
+            parentCategoryID: vCategory.categoryID,
+            name: tcSubCategory.title,
+            urlcode: helper.generateUrlCode(tcSubCategory.title),
+            displayAs: constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES
+          })
+          logger.debug(`The category '${vSubCategory.name}' is created.`)
+        }
+      }
     }
     logger.info('Categories are created.')
   } catch (err) {

@@ -60,19 +60,34 @@ async function manageVanillaUser (data) {
  * @param {Object} challenge the challenge data
  */
 async function createVanillaCategory (challenge) {
-  const { body: challengesForumCategory } = await vanillaClient.searchCategories(constants.VANILLA.CHALLENGES_FORUM_TITLE)
-  if (challengesForumCategory.length === 0) {
-    throw new Error(`The default parent category with name '${constants.VANILLA.CHALLENGES_FORUM_TITLE}' is not found`)
+  let parentCategoryName
+  switch (challenge.track) {
+    case constants.VANILLA.CHALLENGE_TYPE.DEVELOP:
+      parentCategoryName = constants.VANILLA.DEVELOPMENT_FORUMS_TITLE
+      break
+    case constants.VANILLA.CHALLENGE_TYPE.DESIGN:
+      parentCategoryName = constants.VANILLA.DESIGN_FORUMS_TITLE
+      break
+    case constants.VANILLA.CHALLENGE_TYPE.DATA_SCIENCE:
+      parentCategoryName = constants.VANILLA.DATA_SCIENCE_FORUMS_TITLE
+      break
+    default:
+      throw new Error(`The default parent category for the challenge track '${challenge.track}' is not found`)
   }
 
-  if (challengesForumCategory.length > 1) {
-    throw new Error(`Multiple categories with the name '${constants.VANILLA.CHALLENGES_FORUM_TITLE}' are found`)
+  const { body: parentCategory } = await vanillaClient.searchCategories(parentCategoryName)
+  if (parentCategory.length === 0) {
+    throw new Error(`The default parent category with name '${parentCategoryName}' is not found`)
+  }
+
+  if (parentCategory.length > 1) {
+    throw new Error(`Multiple categories with the name '${parentCategoryName}' are found`)
   }
 
   const { body: challengeCategory } = await vanillaClient.createCategory({
     name: challenge.name,
     urlcode: challenge.id,
-    parentCategoryID: challengesForumCategory[0].categoryID,
+    parentCategoryID: parentCategory[0].categoryID,
     displayAs: constants.VANILLA.CATEGORY_DISPLAY_STYLE.HEADING
   })
   const { body: questionCategory } = await vanillaClient.createCategory({
