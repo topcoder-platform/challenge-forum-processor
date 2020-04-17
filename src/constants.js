@@ -28,7 +28,8 @@ module.exports = {
     GROUP_DESCRIPTION_STRING: '${ challenge.name }: ${ challenge.url }',
     GROUP_TOPIC_STRING: WELCOME_INFOMATION,
     CODE_DOCUMENTS_URL_CODE_STRING: '${ challenge.id }-documents',
-    CODE_QUESTIONS_URL_CODE_STRING: '${ challenge.id }-questions'
+    CODE_QUESTIONS_URL_CODE_STRING: '${ challenge.id }-questions',
+    TOPCODER_CHALLENGE_LINK: '<a href="${ challenge.url }">${ challenge.name }</a>'
     /* eslint-enable no-template-curly-in-string */
   },
   // Enum, for use in the user_management module
@@ -66,7 +67,8 @@ module.exports = {
       CATEGORY: 'category'
     },
     DISCUSSION_FORMAT: {
-      NONE: 'none'
+      NONE: 'none',
+      HTML: 'Html'
     }
   },
   ERROR_MESSAGES: {

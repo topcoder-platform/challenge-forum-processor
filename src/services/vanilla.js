@@ -7,6 +7,7 @@ const constants = require('../constants')
 const { generateAnnouncement } = require('../utils/common.util')
 const vanillaClient = require('../utils/vanilla-client.util')
 
+const challengeLinkTemplate = _.template(constants.TEMPLATES.TOPCODER_CHALLENGE_LINK)
 const documentsUrlCodeTemplate = _.template(constants.TEMPLATES.CODE_DOCUMENTS_URL_CODE_STRING)
 const questionsUrlCodeTemplate = _.template(constants.TEMPLATES.CODE_QUESTIONS_URL_CODE_STRING)
 
@@ -101,12 +102,13 @@ async function createVanillaCategory (challenge) {
     parentCategoryID: challengeCategory.categoryID
   })
   // create a read-only discussion to present the challenge summary.
+  const challengeLink = challengeLinkTemplate({ challenge })
   const announcement = generateAnnouncement(challenge)
   await vanillaClient.createDiscussion({
-    body: announcement,
+    body: `${challengeLink}\r\n${announcement}`,
     name: constants.VANILLA.CHALLENGE_OVERVIEW_TITLE,
     categoryID: documentCategory.categoryID,
-    format: constants.VANILLA.DISCUSSION_FORMAT.NONE,
+    format: constants.VANILLA.DISCUSSION_FORMAT.HTML,
     closed: true,
     pinned: true
   })
