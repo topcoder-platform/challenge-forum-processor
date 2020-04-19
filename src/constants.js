@@ -52,6 +52,7 @@ module.exports = {
       FLAT: 'flat',
       HEADING: 'heading'
     },
+    DEFAULT_USER_ROLE: 'Topcoder Member',
     CHALLENGE_ROLE_PERMISSIONS: {
       'comments.add': true,
       'comments.edit': true,

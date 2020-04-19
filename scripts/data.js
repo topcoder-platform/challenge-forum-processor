@@ -27,7 +27,8 @@ module.exports = {
       'Member',
       'Moderator',
       'Administrator',
-      'Unconfirmed'
+      'Unconfirmed',
+      'Topcoder Member'
     ]
   }
 }
