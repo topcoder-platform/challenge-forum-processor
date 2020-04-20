@@ -20,7 +20,11 @@ const questionsUrlCodeTemplate = _.template(constants.TEMPLATES.CODE_QUESTIONS_U
 async function manageVanillaUser (data) {
   const { challengeId, action, handle: username } = data
   const { body: roles } = await vanillaClient.getAllRoles()
+  const topcoderMemberRole = _.find(roles, { name: constants.VANILLA.DEFAULT_USER_ROLE})
   const challengeRole = _.find(roles, { name: challengeId })
+  if(!topcoderMemberRole){
+    throw new Error(`${constants.VANILLA.DEFAULT_USER_ROLE} Role is not found`)
+  }
   if (!challengeRole) {
     throw new Error(`Role for challenge ${challengeId} not found`)
   }
@@ -35,7 +39,8 @@ async function manageVanillaUser (data) {
       await vanillaClient.updateUser(user.userID, {
         roleId: [
           ..._.map(currentRoles, role => role.roleID),
-          challengeRole.roleID
+          challengeRole.roleID,
+          topcoderMemberRole.roleID
         ]
       })
       logger.info(`The user ${user.name} is added to the category associated with challenge ${challengeId}`)
