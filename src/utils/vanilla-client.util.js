@@ -32,6 +32,19 @@ function getVanillaClient () {
       return request.get(`${config.VANILLA.API_URL}/categories`)
         .query(queryParams)
     },
+    getCategoriesByParentUrlCode: (parentUrlCode) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      queryParams.parentCategoryCode = parentUrlCode
+      queryParams.maxDepth = 1
+      return request.get(`${config.VANILLA.API_URL}/categories`)
+        .query(queryParams)
+    },
+    followCategory: (categoryId, userId, data) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      return request.put(`${config.VANILLA.API_URL}/tc-categories/${categoryId}/follow/${userId}`)
+        .query(queryParams)
+        .send(data)
+    },
     searchCategories: (categoryName, page = 1, limit = 30, expand = 'all') => {
       return request.get(`${config.VANILLA.API_URL}/categories/search`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN, query: categoryName, page: page, limit: limit, expand: expand })
