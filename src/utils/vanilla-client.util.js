@@ -39,9 +39,9 @@ function getVanillaClient () {
       return request.get(`${config.VANILLA.API_URL}/categories`)
         .query(queryParams)
     },
-    followCategory: (categoryId, userId, data) => {
+    watchCategory: (categoryId, userId, data) => {
       const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
-      return request.put(`${config.VANILLA.API_URL}/tc-categories/${categoryId}/follow/${userId}`)
+      return request.put(`${config.VANILLA.API_URL}/topcoder/${userId}/watch/${categoryId}`)
         .query(queryParams)
         .send(data)
     },

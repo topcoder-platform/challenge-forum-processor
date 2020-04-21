@@ -57,17 +57,17 @@ async function manageVanillaUser (data) {
         ]
       })
       logger.info(`The user ${user.name} is added to the category associated with challenge ${challengeId}`)
-      await vanillaClient.followCategory(questionCategory.categoryID, user.userID, { followed: true })
-      logger.info(`The user ${user.name} follows the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
-      await vanillaClient.followCategory(documentCategory.categoryID, user.userID, { followed: true })
-      logger.info(`The user ${user.name} follows the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
+      await vanillaClient.watchCategory(questionCategory.categoryID, user.userID, { watched: true })
+      logger.info(`The user ${user.name} watches the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
+      await vanillaClient.watchCategory(documentCategory.categoryID, user.userID, { watched: true })
+      logger.info(`The user ${user.name} watches the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
       break
     }
     case constants.USER_ACTIONS.KICK: {
-      await vanillaClient.followCategory(questionCategory.categoryID, user.userID, { followed: false })
-      logger.info(`The user ${user.name} unfollows the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
-      await vanillaClient.followCategory(documentCategory.categoryID, user.userID, { followed: false })
-      logger.info(`The user ${user.name} unfollows the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
+      await vanillaClient.watchCategory(questionCategory.categoryID, user.userID, { watched: false })
+      logger.info(`The user ${user.name} stops watching the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
+      await vanillaClient.watchCategory(documentCategory.categoryID, user.userID, { watched: false })
+      logger.info(`The user ${user.name} stop watching the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
       await vanillaClient.updateUser(user.userID, {
         roleId: _.without(
           _.map(currentRoles, role => role.roleID),
