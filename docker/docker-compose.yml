@@ -1,0 +1,7 @@
+version: '3'
+services:
+  challenge-forum-processor:
+    image: challenge-forum-processor:latest
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
