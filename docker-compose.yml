@@ -1,53 +1,6 @@
 version: '3'
 
 services:
-  rocketchat:
-    image: rocketchat/rocket.chat:latest
-    command: >
-      bash -c
-        "for i in `seq 1 30`; do
-          node main.js &&
-          s=$$? && break || s=$$?;
-          echo \"Tried $$i times. Waiting 5 secs...\";
-          sleep 5;
-        done; (exit $$s)"
-    restart: unless-stopped
-    environment:
-      - PORT=3000
-      - ROOT_URL=http://localhost:3000
-      - MONGO_URL=mongodb://mongo:27017/rocketchat
-      - MONGO_OPLOG_URL=mongodb://mongo:27017/local
-      - ADMIN_USERNAME=rocket
-      - ADMIN_PASS=rocket
-      - ADMIN_EMAIL=rocket@topcoder.com
-    depends_on:
-      - mongo
-    ports:
-      - 3000:3000
-
-  mongo:
-    image: mongo
-    restart: unless-stopped
-    ports:
-        - 27017:27017
-    command: mongod --oplogSize 128 --replSet rs0
-
-  mongo-init-replica:
-    image: mongo
-    command: >
-      bash -c
-        "for i in `seq 1 30`; do
-          mongo mongo/rocketchat --eval \"
-            rs.initiate({
-              _id: 'rs0',
-              members: [ { _id: 0, host: 'localhost:27017' } ]})\" &&
-          s=$$? && break || s=$$?;
-          echo \"Tried $$i times. Waiting 5 secs...\";
-          sleep 5;
-        done; (exit $$s)"
-    depends_on:
-      - mongo
-
   zookeeper:
     image: wurstmeister/zookeeper
     ports:
@@ -65,21 +18,3 @@ services:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "challenge.notification.create:1:1,challenge.notification.events:1:1,challenge.action.resource.create:1:1,challenge.action.resource.delete:1:1"
-
-  mysql-local:
-    image: mysql
-    container_name: mysql-local
-    ports:
-      - 3306:3306
-    environment:
-      - MYSQL_DATABASE=dbname
-      - MYSQL_ROOT_PASSWORD=root
-    command: --default-authentication-plugin=mysql_native_password
-  vanilla-local:
-    build:
-      context: ./docker/vanilla
-    container_name: vanilla-local
-    ports:
-      - 80:80
-    links:
-      - mysql-local

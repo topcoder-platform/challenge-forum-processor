@@ -12,18 +12,34 @@ This is a Node app that runs as a processor, watching a kafka queue and interfac
 - [Vanilla Forum](https://open.vanillaforums.com/)
 
 ## Local Development
+Install Docker.
 
-Use `docker-compose.yml` file to spin up instances of Kafka, Rocketchat as well as Vanilla and Mysql during local development.
-
-Install Docker, and run the following command:
-
+### Running all services
+1. Enable Rocketchat and Vanilla in `config/default.js`.
+2. Run the following command to spin up instances of Kafka, Rocketchat, Mongo, Vanilla and Mysql during local development.
 ```bash
-$ docker-compose up -d
+docker-compose -f docker-compose.yml -f vanilla.yml -f rocketchat.yml up -d 
 ```
-
-Make sure `kafka`, `zookeeper`, `mongo` and `rocketchat` services as well as the `mysql-lcal` and `vanilla-local` services have start by running `docker ps`.
+Make sure `kafka`, `zookeeper`, `mongo`, `rocketchat`, `mysql-lcal` and `vanilla-local` services have start by running `docker ps`.
 
 The default credentials of RocketChat are `rocket:rocket`, and the GUI should be accessible at http://127.0.0.1:3000/. You'll have to configure RocketChat before you'll be able to use it. Open the GUI, login and answer the prompts to configure it.
+
+### Running with Vanilla only
+1. Enable Vanilla in `config/default.js`. Disable Rocketchat in `config/default.js`.
+2. Run the command to spin up instances of Kafka, Vanilla and Mysql during local development:
+```bash
+docker-compose -f docker-compose.yml -f vanilla.yml up -d
+```
+Make sure `kafka`, `zookeeper`, `mysql-lcal` and `vanilla-local` services have start by running `docker ps`.
+
+### Running with Rocketchat only
+1. Disable Vanilla in `config/default.js`. Enable Rocketchat in `config/default.js`.
+2.Run the command to spin up instances of Kafka, Rocketchat and Mongo during local development:
+```bash
+docker-compose -f docker-compose.yml -f rocketchat.yml up -d
+```
+Make sure `kafka`, `zookeeper`, `mongo`, `rocketchat` services have start by running `docker ps`.
+
 
 ### Setup Vanilla
 
@@ -59,6 +75,8 @@ For quick-setup while development, use a `.env` file, and run `docker-compose up
 
 | Name | Description | Default value |
 | ---- | ----------- | ------------- |
+| ROCKETCHAT_ENABLED | Enable/Disable processing messages with Rocketchat | `false`
+| VANILLA_ENABLED | Enable/Disable processing messages with Vanilla |`true`
 | DISABLE_LOGGING | Whether to disable logging | `false` |
 | LOG_LEVEL | Logging level | `debug` |
 | KAFKA_URL | Kafka connection string | `localhost:9092` |

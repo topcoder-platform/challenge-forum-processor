@@ -1,3 +1,4 @@
+const config = require('config')
 const util = require('util')
 const logger = require('../../utils/logger.util')
 const { manageRocketUser } = require('../../services/rokect')
@@ -7,10 +8,15 @@ const {
   processPayload
 } = require('./helpers')
 
-const services = [
-  manageRocketUser,
-  manageVanillaUser
-]
+const services = []
+
+if (config.ROCKETCHAT_ENABLED) {
+  services.push(manageRocketUser)
+}
+
+if (config.VANILLA_ENABLED) {
+  services.push(manageVanillaUser)
+}
 
 /**
  * Handle a set of messages from the Kafka topic
@@ -18,6 +24,10 @@ const services = [
  * @param {String} topic
  */
 async function handler (messageSet, topic) {
+  if (services.length === 0) {
+    logger.warn('No enabled services to handle messages')
+    return
+  }
   for (const item of messageSet) {
     const data = processPayload(item, topic)
     try {
