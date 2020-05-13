@@ -7,6 +7,8 @@ const KAFKA_CLIENT_KEY_PATH =
   process.env.KAFKA_CLIENT_CERT_PATH || './config/kafka_client.key'
 
 module.exports = {
+  ROCKETCHAT_ENABLED: false,
+  VANILLA_ENABLED: true,
   LOGGER: {
     DISABLE_LOGGING: Boolean(process.env.DISABLE_LOGGING === 'true'),
     LOG_LEVEL: process.env.LOG_LEVEL || 'debug'
