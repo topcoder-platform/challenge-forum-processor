@@ -20,9 +20,9 @@ const questionsUrlCodeTemplate = _.template(constants.TEMPLATES.CODE_QUESTIONS_U
 async function manageVanillaUser (data) {
   const { challengeId, action, handle: username } = data
   const { body: roles } = await vanillaClient.getAllRoles()
-  const topcoderMemberRole = _.find(roles, { name: constants.VANILLA.DEFAULT_USER_ROLE})
+  const topcoderMemberRole = _.find(roles, { name: constants.VANILLA.DEFAULT_USER_ROLE })
   const challengeRole = _.find(roles, { name: challengeId })
-  if(!topcoderMemberRole){
+  if (!topcoderMemberRole) {
     throw new Error(`${constants.VANILLA.DEFAULT_USER_ROLE} Role is not found`)
   }
   if (!challengeRole) {
@@ -33,9 +33,22 @@ async function manageVanillaUser (data) {
     throw new Error(`User with username ${username} not found`)
   }
   const { body: { roles: currentRoles } } = await vanillaClient.getUser(user.userID)
+
+  const { body: categories } = await vanillaClient.getCategoriesByParentUrlCode(challengeId)
+  const challenge = { id: challengeId }
+  const questionsUrlCode = questionsUrlCodeTemplate({ challenge })
+  const questionCategory = _.find(categories, { urlcode: questionsUrlCode })
+  if (!questionCategory) {
+    throw new Error(`Category with urlcode ${questionsUrlCode} not found`)
+  }
+  const documentsUrlCode = documentsUrlCodeTemplate({ challenge })
+  const documentCategory = _.find(categories, { urlcode: documentsUrlCode })
+  if (!documentCategory) {
+    throw new Error(`Category with urlcode ${documentsUrlCode} not found`)
+  }
   // Choose action to perform
   switch (action) {
-    case constants.USER_ACTIONS.INVITE:
+    case constants.USER_ACTIONS.INVITE: {
       await vanillaClient.updateUser(user.userID, {
         roleId: [
           ..._.map(currentRoles, role => role.roleID),
@@ -44,8 +57,17 @@ async function manageVanillaUser (data) {
         ]
       })
       logger.info(`The user ${user.name} is added to the category associated with challenge ${challengeId}`)
+      await vanillaClient.watchCategory(questionCategory.categoryID, user.userID, { watched: true })
+      logger.info(`The user ${user.name} watches the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
+      await vanillaClient.watchCategory(documentCategory.categoryID, user.userID, { watched: true })
+      logger.info(`The user ${user.name} watches the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
       break
-    case constants.USER_ACTIONS.KICK:
+    }
+    case constants.USER_ACTIONS.KICK: {
+      await vanillaClient.watchCategory(questionCategory.categoryID, user.userID, { watched: false })
+      logger.info(`The user ${user.name} stops watching the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
+      await vanillaClient.watchCategory(documentCategory.categoryID, user.userID, { watched: false })
+      logger.info(`The user ${user.name} stop watching the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
       await vanillaClient.updateUser(user.userID, {
         roleId: _.without(
           _.map(currentRoles, role => role.roleID),
@@ -54,6 +76,7 @@ async function manageVanillaUser (data) {
       })
       logger.info(`The user ${user.name} is removed from the category associated with challenge ${challengeId}`)
       break
+    }
     default:
       // Unrecognized action. Throw error
       throw new Error('Unrecognized action')
