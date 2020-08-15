@@ -1,12 +1,12 @@
 const util = require('util')
 const logger = require('../../utils/logger.util')
 const { createRocketChatRoom } = require('../../services/rokect')
-const { createVanillaCategory } = require('../../services/vanilla')
+const { createVanillaGroup } = require('../../services/vanilla')
 const { processPayload } = require('./helpers')
 
 const services = [
   createRocketChatRoom,
-  createVanillaCategory
+  createVanillaGroup
 ]
 
 /**

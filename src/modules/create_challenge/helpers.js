@@ -26,8 +26,10 @@ function processPayload (payload) {
       .add(phase.duration, 'hours')
       .utc()
       .format()
-    // Set the deadline of the phase
-    payload.phases[idx].deadline = deadline[phase.id]
+    // Set the start/end dates of the phase
+    payload.phases[idx].dateEnds = deadline[phase.id]
+    payload.phases[idx].dateStarts = phase.predecessor ? deadline[phase.predecessor] : moment(payload.startDate).utc()
+      .format()
   })
   // Return the payload, with the added information
   return payload
