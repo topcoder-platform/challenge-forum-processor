@@ -17,12 +17,13 @@ const groupDescriptionTemplate = _.template(constants.TEMPLATES.GROUP_TOPIC_STRI
  */
 async function manageVanillaUser (data) {
   const { challengeId, action, handle: username } = data
+  logger.info(`Trying to find '${username}'`)
   const { body: [user] } = await vanillaClient.getUserByName(username)
   if (!user) {
     throw new Error(`User with username ${username} not found`)
   }
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
-  const group = _.find(groups, function (e) { return e.includes(challengeId) })
+  const group = _.find(groups, function (e) { return e.name.includes(challengeId) })
   if (!group) {
     throw new Error(`Group for challengeId '${challengeId}' not found`)
   }
@@ -34,12 +35,10 @@ async function manageVanillaUser (data) {
         userID: user.userID
       })
       // TODO: invite or add a user?
-      /*
-      await vanillaClient.addUserToGroup(group.groupID, {
-        userID: user.userID
-      })
-       */
-      logger.info(`The user '${user.name}' is added to the group '${group.name}'`)
+      // await vanillaClient.addUserToGroup(group.groupID, {
+      //  userID: user.userID
+      // })
+      logger.info(`The user '${user.name}' is invited to the group '${group.name}'`)
       break
     }
     case constants.USER_ACTIONS.KICK: {
