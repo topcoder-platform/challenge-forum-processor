@@ -8,9 +8,7 @@ const { generateAnnouncement } = require('../utils/common.util')
 const vanillaClient = require('../utils/vanilla-client.util')
 
 const challengeLinkTemplate = _.template(constants.TEMPLATES.TOPCODER_CHALLENGE_LINK)
-const documentsUrlCodeTemplate = _.template(constants.TEMPLATES.CODE_DOCUMENTS_URL_CODE_STRING)
-const questionsUrlCodeTemplate = _.template(constants.TEMPLATES.CODE_QUESTIONS_URL_CODE_STRING)
-
+const groupDescriptionTemplate = _.template(constants.TEMPLATES.GROUP_TOPIC_STRING)
 /**
  * Add/Remove a user to/from a category.
  *
@@ -19,41 +17,35 @@ const questionsUrlCodeTemplate = _.template(constants.TEMPLATES.CODE_QUESTIONS_U
  */
 async function manageVanillaUser (data) {
   const { challengeId, action, handle: username } = data
-  const { body: roles } = await vanillaClient.getAllRoles()
-  const topcoderMemberRole = _.find(roles, { name: constants.VANILLA.DEFAULT_USER_ROLE})
-  const challengeRole = _.find(roles, { name: challengeId })
-  if(!topcoderMemberRole){
-    throw new Error(`${constants.VANILLA.DEFAULT_USER_ROLE} Role is not found`)
-  }
-  if (!challengeRole) {
-    throw new Error(`Role for challenge ${challengeId} not found`)
-  }
+  logger.info(`Trying to find '${username}'`)
   const { body: [user] } = await vanillaClient.getUserByName(username)
   if (!user) {
     throw new Error(`User with username ${username} not found`)
   }
-  const { body: { roles: currentRoles } } = await vanillaClient.getUser(user.userID)
+  const { body: groups } = await vanillaClient.searchGroups(challengeId)
+  const group = _.find(groups, function (e) { return e.name.includes(challengeId) })
+  if (!group) {
+    throw new Error(`Group for challengeId '${challengeId}' not found`)
+  }
+
   // Choose action to perform
   switch (action) {
-    case constants.USER_ACTIONS.INVITE:
-      await vanillaClient.updateUser(user.userID, {
-        roleId: [
-          ..._.map(currentRoles, role => role.roleID),
-          challengeRole.roleID,
-          topcoderMemberRole.roleID
-        ]
+    case constants.USER_ACTIONS.INVITE: {
+      await vanillaClient.inviteUserToGroup(group.groupID, {
+        userID: user.userID
       })
-      logger.info(`The user ${user.name} is added to the category associated with challenge ${challengeId}`)
+      // TODO: invite or add a user?
+      // await vanillaClient.addUserToGroup(group.groupID, {
+      //  userID: user.userID
+      // })
+      logger.info(`The user '${user.name}' is invited to the group '${group.name}'`)
       break
-    case constants.USER_ACTIONS.KICK:
-      await vanillaClient.updateUser(user.userID, {
-        roleId: _.without(
-          _.map(currentRoles, role => role.roleID),
-          challengeRole.roleID
-        )
-      })
-      logger.info(`The user ${user.name} is removed from the category associated with challenge ${challengeId}`)
+    }
+    case constants.USER_ACTIONS.KICK: {
+      await vanillaClient.removeUserFromGroup(group.groupID, user.userID)
+      logger.info(`The user '${user.name}' is removed from the group '${group.name}'`)
       break
+    }
     default:
       // Unrecognized action. Throw error
       throw new Error('Unrecognized action')
@@ -61,89 +53,66 @@ async function manageVanillaUser (data) {
 }
 
 /**
- * Create a vanilla forum category for a challenge.
+ * Create a vanilla forum group for a challenge.
  *
  * @param {Object} challenge the challenge data
  */
-async function createVanillaCategory (challenge) {
-  let parentCategoryName
-  switch (challenge.track) {
-    case constants.VANILLA.CHALLENGE_TYPE.DEVELOP:
-      parentCategoryName = constants.VANILLA.DEVELOPMENT_FORUMS_TITLE
-      break
-    case constants.VANILLA.CHALLENGE_TYPE.DESIGN:
-      parentCategoryName = constants.VANILLA.DESIGN_FORUMS_TITLE
-      break
-    case constants.VANILLA.CHALLENGE_TYPE.DATA_SCIENCE:
-      parentCategoryName = constants.VANILLA.DATA_SCIENCE_FORUMS_TITLE
-      break
-    default:
-      throw new Error(`The default parent category for the challenge track '${challenge.track}' is not found`)
-  }
-
-  const { body: parentCategory } = await vanillaClient.searchCategories(parentCategoryName)
-  if (parentCategory.length === 0) {
-    throw new Error(`The default parent category with name '${parentCategoryName}' is not found`)
-  }
-
-  if (parentCategory.length > 1) {
-    throw new Error(`Multiple categories with the name '${parentCategoryName}' are found`)
-  }
-
-  const { body: challengeCategory } = await vanillaClient.createCategory({
-    name: challenge.name,
-    urlcode: challenge.id,
-    parentCategoryID: parentCategory[0].categoryID,
-    displayAs: constants.VANILLA.CATEGORY_DISPLAY_STYLE.HEADING
+async function createVanillaGroup (challenge) {
+  const groupDescription = groupDescriptionTemplate({ challenge })
+  const { body: group } = await vanillaClient.createGroup({
+    description: groupDescription,
+    format: constants.VANILLA.GROUP_POST_FORMAT.TEXT,
+    name: `${challenge.name}-${challenge.id}`,
+    privacy: constants.VANILLA.GROUP_PRIVACY.SECRET
   })
-  const { body: questionCategory } = await vanillaClient.createCategory({
-    name: constants.VANILLA.QUESTION_CATEGORY_NAME,
-    urlcode: questionsUrlCodeTemplate({ challenge }),
-    parentCategoryID: challengeCategory.categoryID
-  })
-  const { body: documentCategory } = await vanillaClient.createCategory({
-    name: constants.VANILLA.DOCUMENT_CATEGORY_NAME,
-    urlcode: documentsUrlCodeTemplate({ challenge }),
-    parentCategoryID: challengeCategory.categoryID
-  })
-  // create a read-only discussion to present the challenge summary.
+
+  logger.info(`New group for the challenge '${challenge.id}' is created`)
+
   const challengeLink = challengeLinkTemplate({ challenge })
+  // create a read-only discussion to present the challenge summary.
   const announcement = generateAnnouncement(challenge)
   await vanillaClient.createDiscussion({
-    body: `${challengeLink}\r\n${announcement}`,
+    body: `${challengeLink}${constants.VANILLA.LINE_BREAKS.HTML}${announcement}`,
     name: constants.VANILLA.CHALLENGE_OVERVIEW_TITLE,
-    categoryID: documentCategory.categoryID,
-    format: constants.VANILLA.DISCUSSION_FORMAT.HTML,
+    groupID: group.groupID,
+    format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
     closed: true,
     pinned: true
   })
-  // create a read-only discussion to show welcome information.
+
+  logger.info(`Announcement for the group '${group.name}' is created`)
+
+  // create a code documents discussion
   await vanillaClient.createDiscussion({
-    body: constants.VANILLA.CHALLENGE_WELCOME_CONTENT,
-    name: constants.VANILLA.CHALLENGE_WELCOME_TITLE,
-    categoryID: questionCategory.categoryID,
-    format: constants.VANILLA.DISCUSSION_FORMAT.NONE,
+    body: constants.VANILLA.DOCUMENT_CATEGORY_NAME,
+    name: constants.VANILLA.DOCUMENT_CATEGORY_NAME,
+    groupID: group.groupID,
+    format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
     closed: true,
-    pinned: true
+    pinned: false
   })
-  logger.info(`New category for challenge ${challenge.id} is created`)
-  // create a dedicated role for the category
-  const roleName = challenge.id
-  const roleDescription = challenge.name
-  const { body: roles } = await vanillaClient.getAllRoles()
-  if (_.map(roles, role => role.name).includes(roleName)) {
-    throw new Error(`The role with name ${roleName} already exists`)
+
+  logger.info(`Discussion for the group '${group.name}' is created`)
+
+  // create events for the group
+  for (const phase of challenge.phases) {
+    const formattedDateStarts = phase.dateStarts
+    const formattedDateEnds = phase.dateEnds
+    await vanillaClient.createEvent({
+      body: `${challengeLink}`,
+      parentRecordType: constants.VANILLA.EVENT_RECORD_TYPE.GROUP,
+      parentRecordID: 0,
+      dateEnds: formattedDateEnds,
+      dateStarts: formattedDateStarts,
+      format: constants.VANILLA.EVENT_POST_FORMAT.WYSIWYG,
+      groupID: group.groupID,
+      name: phase.name
+    })
+    logger.info(`New event '${phase.name}' for the group '${group.name}' is created`)
   }
-  const { body: role } = await vanillaClient.createRole({ name: roleName, description: roleDescription })
-  await vanillaClient.updateRolePermission(role.roleID, [{
-    id: challengeCategory.categoryID,
-    permissions: constants.VANILLA.CHALLENGE_ROLE_PERMISSIONS,
-    type: constants.VANILLA.PERMISSION_TYPE.CATEGORY
-  }])
-  logger.info(`New role for challenge ${challenge.id} is created`)
 }
 
 module.exports = {
   manageVanillaUser,
-  createVanillaCategory
+  createVanillaGroup
 }
