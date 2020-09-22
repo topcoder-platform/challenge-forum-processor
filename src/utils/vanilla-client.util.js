@@ -91,6 +91,27 @@ function getVanillaClient () {
       return request.patch(`${config.VANILLA.API_URL}/users/${userId}`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
         .send(data)
+    },
+    createGroup: (data) => {
+      return request.post(`${config.VANILLA.API_URL}/groups`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
+    searchGroups: (query) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      queryParams.challengeID = query
+      queryParams.page = 1
+      return request.get(`${config.VANILLA.API_URL}/groups`)
+        .query(queryParams)
+    },
+    addUserToGroup: (groupId, data) => {
+      return request.post(`${config.VANILLA.API_URL}/groups/${groupId}/members`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
+    removeUserFromGroup: (groupId, userId) => {
+      return request.delete(`${config.VANILLA.API_URL}/groups/${groupId}/members/${userId}`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
     }
   }
 }

@@ -68,8 +68,40 @@ module.exports = {
       CATEGORY: 'category'
     },
     DISCUSSION_FORMAT: {
-      NONE: 'none',
-      HTML: 'Html'
+      RICH: 'rich',
+      MARKDOWN: 'markdown',
+      TEXT: 'text',
+      TEXTEX: 'textex',
+      WYSIWYG: 'wysiwyg',
+      BBCODE: 'bbcode'
+    },
+    GROUP_PRIVACY: {
+      SECRET: 'secret',
+      PRIVATE: 'private',
+      PUBLIC: 'public'
+    },
+    GROUP_POST_FORMAT: {
+      RICH: 'rich',
+      MARKDOWN: 'markdown',
+      TEXT: 'text',
+      TEXTEX: 'textex',
+      WYSIWYG: 'wysiwyg',
+      BBCODE: 'bbcode'
+    },
+    EVENT_RECORD_TYPE: {
+      GROUP: 'group',
+      CATEGORY: 'category'
+    },
+    EVENT_POST_FORMAT: {
+      RICH: 'rich',
+      MARKDOWN: 'markdown',
+      TEXT: 'text',
+      TEXTEX: 'textex',
+      WYSIWYG: 'wysiwyg',
+      BBCODE: 'bbcode'
+    },
+    LINE_BREAKS: {
+      HTML: '<br>'
     }
   },
   ERROR_MESSAGES: {
