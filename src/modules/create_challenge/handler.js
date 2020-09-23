@@ -2,7 +2,7 @@ const config = require('config')
 const util = require('util')
 const logger = require('../../utils/logger.util')
 const { createRocketChatRoom } = require('../../services/rokect')
-const { createVanillaCategory } = require('../../services/vanilla')
+const { createVanillaGroup } = require('../../services/vanilla')
 const { processPayload } = require('./helpers')
 
 const services = []
@@ -12,7 +12,7 @@ if (config.ROCKETCHAT_ENABLED) {
 }
 
 if (config.VANILLA_ENABLED) {
-  services.push(createVanillaCategory)
+  services.push(createVanillaGroup)
 }
 
 /**

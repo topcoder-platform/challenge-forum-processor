@@ -23,35 +23,29 @@ async function manageVanillaUser (data) {
     throw new Error(`User with username ${username} not found`)
   }
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
-  const group = _.find(groups, function (e) { return e.name.includes(challengeId) })
+  const group = groups.length > 0 ? groups[0] : null
   if (!group) {
-    throw new Error(`Group for challengeId '${challengeId}' not found`)
+    throw new Error(`The Group for challengeId '${challengeId}' not found`)
   }
+
+  const { body: groupsCategory } = await vanillaClient.getGroupCategory()
 
   // Choose action to perform
   switch (action) {
     case constants.USER_ACTIONS.INVITE: {
-       await vanillaClient.addUserToGroup(group.groupID, {
-          userID: user.userID
-       })
+      await vanillaClient.addUserToGroup(group.groupID, {
+        userID: user.userID
+      })
       logger.info(`The user '${user.name}' is added to the group '${group.name}'`)
-      //TODO: if User is added => watch the category
-      /**
-      await vanillaClient.watchCategory(questionCategory.categoryID, user.userID, { watched: true })
-      logger.info(`The user ${user.name} watches the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
-      await vanillaClient.watchCategory(documentCategory.categoryID, user.userID, { watched: true })
-      logger.info(`The user ${user.name} watches the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
-      **/
+      // if User is added => watch the category
+      await vanillaClient.watchCategory(groupsCategory.categoryID, user.userID, { watched: true })
+      logger.info(`The user ${user.name} watches the category ${groupsCategory.categoryID} associated with challenge ${challengeId}`)
       break
     }
     case constants.USER_ACTIONS.KICK: {
-      //TODO: if User is added => watch the category
-      /**
-      await vanillaClient.watchCategory(questionCategory.categoryID, user.userID, { watched: false })
-      logger.info(`The user ${user.name} stops watching the category ${questionCategory.categoryID} associated with challenge ${challengeId}`)
-      await vanillaClient.watchCategory(documentCategory.categoryID, user.userID, { watched: false })
-      logger.info(`The user ${user.name} stop watching the category ${documentCategory.categoryID} associated with challenge ${challengeId}`)
-      **/
+      // if User is added => watch the category
+      await vanillaClient.watchCategory(groupsCategory.categoryID, user.userID, { watched: false })
+      logger.info(`The user ${user.name} stops watching the category ${groupsCategory.categoryID} associated with challenge ${challengeId}`)
       await vanillaClient.removeUserFromGroup(group.groupID, user.userID)
       logger.info(`The user '${user.name}' is removed from the group '${group.name}'`)
       break
@@ -69,23 +63,29 @@ async function manageVanillaUser (data) {
  */
 async function createVanillaGroup (challenge) {
   const groupDescription = groupDescriptionTemplate({ challenge })
+  const challengeLink = challengeLinkTemplate({ challenge })
   const { body: group } = await vanillaClient.createGroup({
-    description: groupDescription,
-   // format: constants.VANILLA.GROUP_POST_FORMAT.TEXT,
     name: `${challenge.name}`,
+    type: constants.VANILLA.GROUP_PRIVACY.SECRET,
+    description: groupDescription,
     challengeID: `${challenge.id}`,
-    challengeLink: `${challenge.url}`,
-    type: constants.VANILLA.GROUP_PRIVACY.SECRET
+    challengeUrl: `${challenge.url}`
   })
 
-  logger.info(`New group for the challenge '${challenge.id}' is created`)
+  logger.info(`The group with GroupID='${group.groupID}' for the challenge '${challenge.id}' is created`)
 
-  const challengeLink = challengeLinkTemplate({ challenge })
+  const { body: groupsCategory } = await vanillaClient.getGroupCategory()
+  if (groupsCategory) {
+    logger.info(`The Group Category is '${groupsCategory.categoryID}'`)
+  } else {
+    throw new Error('The Groups category should be specified')
+  }
   // create a read-only discussion to present the challenge summary.
   const announcement = generateAnnouncement(challenge)
   await vanillaClient.createDiscussion({
     body: `${challengeLink}${constants.VANILLA.LINE_BREAKS.HTML}${announcement}`,
     name: constants.VANILLA.CHALLENGE_OVERVIEW_TITLE,
+    categoryID: groupsCategory.categoryID,
     groupID: group.groupID,
     format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
     closed: true,
@@ -99,6 +99,7 @@ async function createVanillaGroup (challenge) {
     body: constants.VANILLA.DOCUMENT_CATEGORY_NAME,
     name: constants.VANILLA.DOCUMENT_CATEGORY_NAME,
     groupID: group.groupID,
+    categoryID: groupsCategory.categoryID,
     format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
     closed: true,
     pinned: false

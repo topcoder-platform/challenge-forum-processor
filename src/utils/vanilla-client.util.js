@@ -39,6 +39,11 @@ function getVanillaClient () {
       return request.get(`${config.VANILLA.API_URL}/categories`)
         .query(queryParams)
     },
+    getGroupCategory: () => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      return request.get(`${config.VANILLA.API_URL}/groups/category`)
+        .query(queryParams)
+    },
     watchCategory: (categoryId, userId, data) => {
       const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
       return request.put(`${config.VANILLA.API_URL}/topcoder/${userId}/watch/${categoryId}`)
