@@ -13,8 +13,8 @@ const constants = require('../constants')
  */
 function generateAnnouncement (challenge) {
   let announcement = ''
-  if(challenge.prizeSets) {
- const prizes = _.find(challenge.prizeSets, { type: 'Challenge prizes' })
+  if (challenge.prizeSets) {
+    const prizes = _.find(challenge.prizeSets, { type: 'Challenge prizes' })
       .prizes
 
     announcement += `Prizes: ${prizes.map(i => `$${i.value}`).join(', ')}${constants.VANILLA.LINE_BREAKS.HTML}`
