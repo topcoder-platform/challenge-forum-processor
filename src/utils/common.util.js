@@ -12,20 +12,23 @@ const constants = require('../constants')
  * @returns {String} the announcement text
  */
 function generateAnnouncement (challenge) {
-  const prizes = _.find(challenge.prizeSets, { type: 'Challenge prizes' })
-    .prizes
   let announcement = ''
-  announcement += `Prizes: ${prizes.map(i => `$${i.value}`).join(', ')}${constants.VANILLA.LINE_BREAKS.HTML}`
-  announcement += _.reduce(
-    challenge.phases,
-    (acc, phase) => {
-      const formattedDeadline = moment(phase.dateEnds)
-        .utcOffset('-0500')
-        .format('YYYY-MM-DD HH:mm Z')
-      return `${acc}${phase.description}: ${formattedDeadline}${constants.VANILLA.LINE_BREAKS.HTML}`
-    },
-    ''
-  )
+  if (challenge.prizeSets) {
+    const prizes = _.find(challenge.prizeSets, { type: 'Challenge prizes' })
+      .prizes
+
+    announcement += `Prizes: ${prizes.map(i => `$${i.value}`).join(', ')}${constants.VANILLA.LINE_BREAKS.HTML}`
+    announcement += _.reduce(
+      challenge.phases,
+      (acc, phase) => {
+        const formattedDeadline = moment(phase.dateEnds)
+          .utcOffset('-0500')
+          .format('YYYY-MM-DD HH:mm Z')
+        return `${acc}${phase.description}: ${formattedDeadline}${constants.VANILLA.LINE_BREAKS.HTML}`
+      },
+      ''
+    )
+  }
   return announcement
 }
 

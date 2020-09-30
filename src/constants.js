@@ -60,9 +60,9 @@ module.exports = {
       'discussions.view': true
     },
     CHALLENGE_TYPE: {
-      DEVELOP: 'DEVELOP',
-      DESIGN: 'DESIGN',
-      DATA_SCIENCE: 'DATA_SCIENCE'
+      DEVELOP: 'Development',
+      DESIGN: 'Design',
+      DATA_SCIENCE: 'Data Science'
     },
     PERMISSION_TYPE: {
       CATEGORY: 'category'
