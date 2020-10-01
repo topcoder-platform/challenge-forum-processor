@@ -38,34 +38,18 @@ module.exports = {
     KICK: 'kick'
   },
   VANILLA: {
-    DOCUMENT_CATEGORY_NAME: 'Code Documents',
-    QUESTION_CATEGORY_NAME: 'Code Questions',
-    CHALLENGE_OVERVIEW_TITLE: 'Challenge Overview',
-    DEVELOPMENT_FORUMS_TITLE: 'Development Forums',
-    DESIGN_FORUMS_TITLE: 'Design Forums',
-    DATA_SCIENCE_FORUMS_TITLE: 'Data Science Forums',
-    CHALLENGE_WELCOME_TITLE: 'Welcome!',
-    CHALLENGE_WELCOME_CONTENT: WELCOME_INFOMATION,
+    CHALLENGES_FORUM: 'Challenges Forums',
     CATEGORY_DISPLAY_STYLE: {
       CATEGORIES: 'categories',
       DISCUSSIONS: 'discussions',
       FLAT: 'flat',
       HEADING: 'heading'
     },
-    DEFAULT_USER_ROLE: 'Topcoder Member',
     CHALLENGE_ROLE_PERMISSIONS: {
       'comments.add': true,
       'comments.edit': true,
       'discussions.add': true,
       'discussions.view': true
-    },
-    CHALLENGE_TYPE: {
-      DEVELOP: 'Development',
-      DESIGN: 'Design',
-      DATA_SCIENCE: 'Data Science'
-    },
-    PERMISSION_TYPE: {
-      CATEGORY: 'category'
     },
     DISCUSSION_FORMAT: {
       RICH: 'rich',
@@ -87,10 +71,6 @@ module.exports = {
       TEXTEX: 'textex',
       WYSIWYG: 'wysiwyg',
       BBCODE: 'bbcode'
-    },
-    EVENT_RECORD_TYPE: {
-      GROUP: 'group',
-      CATEGORY: 'category'
     },
     EVENT_POST_FORMAT: {
       RICH: 'rich',

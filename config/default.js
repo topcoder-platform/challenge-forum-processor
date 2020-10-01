@@ -46,5 +46,9 @@ module.exports = {
     AUTH0_URL: process.env.TOPCODER_AUTH0_URL,
     API_URL: process.env.TOPCODER_API_URL || 'https://api.topcoder-dev.com',
     ROOT_URL: process.env.TOPCODER_ROOT_URL || 'https://topcoder-dev.com'
+  },
+
+  TEMPLATES: {
+     TEMPLATE_FILE_PATH: './../../config/template.json'
   }
 }
