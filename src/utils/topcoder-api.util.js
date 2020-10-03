@@ -59,11 +59,41 @@ async function reqToAPI (reqType, path, reqBody) {
  * Gets the user's handle given the user's ID
  * @param {String} userId User's ID (6-digit numeric)
  */
-async function getUserDetails (userId) {
+async function getUserDetailsById (userId) {
   const path = `${config.TOPCODER.API_URL}/v3/users?filter=id%3D${userId}`
   return reqToAPI('GET', path)
 }
 
+/**
+ * Gets the user by Topcoder's handle
+ * @param {String} handle
+ */
+async function getUserDetailsByHandle (handle) {
+  const path = `${config.TOPCODER.API_URL}/v3/users?filter=handle%3D${handle}`
+  return reqToAPI('GET', path)
+}
+
+/**
+ * Gets the challenge
+ * @param {String} challengeId Challenge's ID (uuid)
+ */
+async function getChallenge (challengeId) {
+  const path = `${config.TOPCODER.API_URL}/v5/challenges/${challengeId}`
+  return reqToAPI('GET', path)
+}
+
+/**
+ * Update the challenge
+ * @param {String} challengeId Challenge's ID (uuid)
+ */
+async function updateChallenge (challengeId, data) {
+  const path = `${config.TOPCODER.API_URL}/v5/challenges/${challengeId}`
+  return reqToAPI('PATCH', path, data)
+}
+
 module.exports = {
-  getUserDetails
+  getUserDetailsById,
+  getUserDetailsByHandle,
+  getChallenge,
+  updateChallenge
 }
