@@ -18,13 +18,13 @@
                 "type": "secret"
               },
               "categories": [
-                  {
+                 {
                     "name": "Code Documents",
                     "urlcode": "${ challenge.id }-documents",
                     "discussions": [
                       {
                         "title": "Challenge Overview",
-                        "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                        "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
                         "announce": 1,
                         "closed": 1
                       },
@@ -60,58 +60,7 @@
                     }
                   ]
                 }
-                ],
-              "phases": [
-                {
-                  "description": "Registration Phase",
-                  "duration": 72,
-                  "id": "1",
-                  "name": "Registration"
-                },
-                {
-                  "description": "Submission Phase",
-                  "duration": 72,
-                  "id": "2",
-                  "name": "Submission",
-                  "predecessor": "1"
-                },
-                {
-                  "description": "Review Phase",
-                  "duration": 48,
-                  "id": "3",
-                  "name": "Review",
-                  "predecessor": "2"
-                },
-                {
-                  "description": "Appeals Phase",
-                  "duration": 24,
-                  "id": "4",
-                  "name": "Appeals",
-                  "predecessor": "3"
-                },
-                {
-                  "description": "Appeals Response Phase",
-                  "duration": 24,
-                  "id": "5",
-                  "name": "Appeals Response",
-                  "predecessor": "4"
-                }
-              ],
-              "prizeSets": [
-                {
-                  "type": "Challenge prizes",
-                  "prizes": [
-                    {
-                      "type": "money",
-                      "value": 1000
-                    },
-                    {
-                      "type": "money",
-                      "value": 500
-                    }
-                  ]
-                }
-              ]
+                ]
             }
           ]
         },

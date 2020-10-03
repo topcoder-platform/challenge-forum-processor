@@ -88,6 +88,11 @@ function getVanillaClient () {
           name: username
         })
     },
+    addUser: (data) => {
+      return request.post(`${config.VANILLA.API_URL}/users`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
     getUser: (userId) => {
       return request.get(`${config.VANILLA.API_URL}/users/${userId}`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
