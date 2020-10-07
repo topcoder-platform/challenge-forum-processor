@@ -18,7 +18,7 @@ const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
  */
 async function manageVanillaUser (data) {
   const { challengeId, action, handle: username } = data
-  logger.debug(`Managing users for challengeID=${challengeId} ...`)
+  logger.info(`Managing users for challengeID=${challengeId} ...`)
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
   const group = groups.length > 0 ? groups[0] : null
   if (!group) {
@@ -140,7 +140,7 @@ async function createVanillaGroup (challenge) {
         throw new Error('The group has been created for this challenge')
       }
 
-      logger.debug(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
+      logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
 
       const groupNameTemplate = _.template(groupTemplate.group.name)
       const groupDescriptionTemplate = _.template(groupTemplate.group.description)
@@ -205,7 +205,7 @@ async function createVanillaGroup (challenge) {
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
       logger.info(`The challenge's discussion url is ${challengeDetailsDiscussion.url}`)
-      await topcoderApi.updateChallenge(challenge.id, challengeDetails.discussions)
+      await topcoderApi.updateChallenge(challenge.id, { discussions: challengeDetails.discussions })
       logger.info('The challenge was updated')
     }
   }
