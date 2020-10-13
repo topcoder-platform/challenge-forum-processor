@@ -91,9 +91,20 @@ async function updateChallenge (challengeId, data) {
   return reqToAPI('PATCH', path, data)
 }
 
+/**
+ * Gets the roles for an user
+ * @param {int} userId User's ID
+ */
+async function getRoles (userId) {
+  const path = `${config.TOPCODER.API_URL}/v3/roles?filter=subjectID%3D${userId}`
+  return reqToAPI('GET', path)
+}
+
+
 module.exports = {
   getUserDetailsById,
   getUserDetailsByHandle,
   getChallenge,
-  updateChallenge
+  updateChallenge,
+  getRoles
 }
