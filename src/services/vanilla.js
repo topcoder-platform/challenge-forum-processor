@@ -25,30 +25,65 @@ async function manageVanillaUser (data) {
     throw new Error('The group wasn\'t not found by challengeID')
   }
   let { body: [vanillaUser] } = await vanillaClient.getUserByName(username)
+
+  const { text: topcoderProfileResponseStr, status } = await topcoderApi.getUserDetailsByHandle(username)
+
+  const topcoderProfileResponse = JSON.parse(topcoderProfileResponseStr).result
+  if (status !== 200) {
+    throw new Error('Couldn\'t load Topcoder profile', topcoderProfileResponse.content)
+  }
+  const topcoderProfile = JSON.parse(topcoderProfileResponseStr).result.content[0]
+
+  const {text: topcoderRolesResponseStr} = await topcoderApi.getRoles(topcoderProfile.id)
+  const topcoderRolesResponse = JSON.parse(topcoderRolesResponseStr).result.content
+  const topcoderRoleNames = _.map(topcoderRolesResponse, 'roleName')
+
+  const{ body: allVanillaRoles } = await vanillaClient.getAllRoles()
+
+  // Add all missing Topcoder roles
+  await addTopcoderRoles(allVanillaRoles, topcoderRoleNames)
+
+  const { body: allNewVanillaRoles } = await vanillaClient.getAllRoles()
+
+  let allTopcoderRoles = _.filter(allNewVanillaRoles, { type: 'topcoder' })
+
+  let nonTopcoderRoles = _.filter(allNewVanillaRoles, role => role['type'] != 'topcoder')
+  let nonTopcoderRoleIDs = _.map(nonTopcoderRoles, 'roleID')
+
+  let userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role['name']))
+  let userTopcoderRoleIDs = _.map(userTopcoderRoles, 'roleID')
+
   if (!vanillaUser) {
     logger.info(`The '${username}' user wasn't found in Vanilla`)
-    const { text: topcoderProfileResponseStr, status } = await topcoderApi.getUserDetailsByHandle(username)
 
-    const topcoderProfileResponse = JSON.parse(topcoderProfileResponseStr).result
-    if (status !== 200) {
-      throw new Error('Couldn\'t load Topcoder profile', topcoderProfileResponse.content)
-    }
-    const topcoderProfile = JSON.parse(topcoderProfileResponseStr).result.content[0]
-    const { body: roles } = await vanillaClient.getAllRoles()
-    const defaultRoles = _.filter(roles, { type: 'member' })
-    const roleIDs = _.map(defaultRoles, 'roleID')
+    const defaultVanillaRoles = _.filter(allNewVanillaRoles, { type: 'member' })
+    const defaultVanillaRoleIDs = _.map(defaultVanillaRoles, 'roleID')
+
     const userData = {
       bypassSpam: true,
-      email: topcoderProfile.email + '2',
+      email: topcoderProfile.email,
       emailConfirmed: true,
       name: username,
       password: utils.randomValue(8),
       photo: null,
-      roleID: roleIDs
+      roleID: [...defaultVanillaRoleIDs, ...userTopcoderRoleIDs]
     }
+
     const { body: user } = await vanillaClient.addUser(userData)
     vanillaUser = user
     logger.info(`New user with UserID=${vanillaUser.userID} was added.`)
+  } else {
+    // Get a full user profile with roles
+    const { body: user } = await vanillaClient.getUser(vanillaUser.userID)
+    vanillaUser = user
+
+    // Sync Topcoder roles
+    const allCurrentUserRoleIDs = _.map(vanillaUser.roles, 'roleID');
+    const currentVanillaRoleIDs = _.intersection(allCurrentUserRoleIDs, nonTopcoderRoleIDs)
+    const userData = {
+      roleID: [...currentVanillaRoleIDs, ...userTopcoderRoleIDs]
+    }
+    await vanillaClient.updateUser(vanillaUser.userID, userData)
   }
 
   const { body: categories } = await vanillaClient.getCategoriesByParentUrlCode(challengeId)
@@ -80,6 +115,26 @@ async function manageVanillaUser (data) {
     default:
       // Unrecognized action. Throw error
       throw new Error('Unrecognized action')
+  }
+}
+
+async function addTopcoderRoles(allVanillaRoles, topcoderRoleNames) {
+  const allTopcoderRoles = _.filter(allVanillaRoles, { type: 'topcoder' })
+  const userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role['name']))
+  const userTopcoderRoleIDs = _.map(userTopcoderRoles, 'roleID')
+
+  if(topcoderRoleNames.length !=  userTopcoderRoleIDs.length) {
+    const missingRoles = _.difference(topcoderRoleNames,  _.map(userTopcoderRoles, 'name'))
+    logger.info('Missing roles:' + JSON.stringify(missingRoles))
+    for(const missingRole of missingRoles) {
+      await vanillaClient.createRole({
+        canSession: 1,
+        description: 'Added by Challenge Forum Processor',
+        name: missingRole,
+        type: 'topcoder'
+      })
+      logger.info(`Missing roles ${missingRole} was added`)
+    }
   }
 }
 
