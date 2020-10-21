@@ -2,7 +2,7 @@ const config = require("config");
 const _ = require("lodash");
 const m2mAuth = require("tc-core-library-js").auth.m2m;
 const request = require("superagent");
-const logger = require("logger.util");
+const logger = require("./logger.util");
 
 let m2m = null;
 
