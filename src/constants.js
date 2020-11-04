@@ -37,6 +37,9 @@ module.exports = {
     INVITE: 'invite',
     KICK: 'kick'
   },
+  TOPCODER: {
+    ROLE_COPILOT : 'copilot'
+  },
   VANILLA: {
     CHALLENGES_FORUM: 'Challenges Forums',
     CATEGORY_DISPLAY_STYLE: {

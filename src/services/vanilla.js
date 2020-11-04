@@ -24,6 +24,7 @@ async function manageVanillaUser (data) {
   if (!group) {
     throw new Error('The group wasn\'t not found by challengeID')
   }
+
   let { body: [vanillaUser] } = await vanillaClient.getUserByName(username)
 
   const { text: topcoderProfileResponseStr, status } = await topcoderApi.getUserDetailsByHandle(username)
@@ -167,6 +168,8 @@ async function createVanillaGroup (challenge) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
   }
 
+  const {body: project} =  await topcoderApi.getProject(challenge.projectId)
+  const copilots = _.filter(project.members, { role: constants.TOPCODER.ROLE_COPILOT })
   const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
   if (!challengesForums) {
     throw new Error(`The '${constants.VANILLA.CHALLENGES_FORUM}' category wasn't found in the template json file`)
@@ -248,6 +251,10 @@ async function createVanillaGroup (challenge) {
 
       if(groupTemplate.discussions){
          await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory);
+      }
+
+      for (const copilot of copilots) {
+        await manageVanillaUser({challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: copilot.handle})
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
