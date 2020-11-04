@@ -265,6 +265,28 @@ async function createVanillaGroup (challenge) {
   }
 }
 
+/**
+ * Update a vanilla forum group.
+ *
+ * @param {Object} challenge the challenge data
+ */
+async function updateVanillaGroup (challenge) {
+  logger.info(`The challenge with challengeID=${challenge.id}:`)
+
+  const { body: groups } = await vanillaClient.searchGroups(challenge.id)
+  if (groups.length == 0) {
+      throw new Error('The group wasn\'t found for this challenge')
+  }
+
+  if (groups.length > 1) {
+    throw new Error('Multiple groups were found for this challenge')
+  }
+
+  const {body: updatedGroup} = await vanillaClient.updateGroup(groups[0].groupID, {name: challenge.name})
+
+  logger.info(`The group was updated: ${JSON.stringify(updatedGroup)}`)
+}
+
 async function createDiscussions (group, challenge, templateDiscussions, vanillaCategory) {
     for (const discussion of templateDiscussions) {
       // create a discussion
@@ -284,5 +306,6 @@ async function createDiscussions (group, challenge, templateDiscussions, vanilla
 
 module.exports = {
   manageVanillaUser,
-  createVanillaGroup
+  createVanillaGroup,
+  updateVanillaGroup
 }
