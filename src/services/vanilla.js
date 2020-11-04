@@ -24,6 +24,7 @@ async function manageVanillaUser (data) {
   if (!group) {
     throw new Error('The group wasn\'t not found by challengeID')
   }
+
   let { body: [vanillaUser] } = await vanillaClient.getUserByName(username)
 
   const { text: topcoderProfileResponseStr, status } = await topcoderApi.getUserDetailsByHandle(username)
@@ -167,6 +168,8 @@ async function createVanillaGroup (challenge) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
   }
 
+  const {body: project} =  await topcoderApi.getProject(challenge.projectId)
+  const copilots = _.filter(project.members, { role: constants.TOPCODER.ROLE_COPILOT })
   const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
   if (!challengesForums) {
     throw new Error(`The '${constants.VANILLA.CHALLENGES_FORUM}' category wasn't found in the template json file`)
@@ -228,34 +231,30 @@ async function createVanillaGroup (challenge) {
         name: challengeDetailsDiscussion.name,
         urlcode: `${challenge.id}`,
         parentCategoryID: parentCategory[0].categoryID,
-        displayAs: constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES
+        displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS
       })
 
       logger.info(`The '${challengeCategory.name}' category was created`)
 
-      for (const item of groupTemplate.categories) {
-        const urlCodeTemplate = _.template(item.urlcode)
-        const { body: childCategory } = await vanillaClient.createCategory({
-          name: item.name,
-          urlcode: `${urlCodeTemplate({ challenge })}`,
-          parentCategoryID: challengeCategory.categoryID
-        })
-        logger.info(`The '${item.name}' category was created`)
-
-        for (const discussion of item.discussions) {
-          // create a code documents discussion
-          const bodyTemplate = _.template(discussion.body)
-          await vanillaClient.createDiscussion({
-            body: bodyTemplate({ challenge: challenge }),
-            name: discussion.title,
-            groupID: group.groupID,
-            categoryID: childCategory.categoryID,
-            format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
-            closed: discussion.closed,
-            pinned: discussion.announce
+      if(groupTemplate.categories) {
+        for (const item of groupTemplate.categories) {
+          const urlCodeTemplate = _.template(item.urlcode)
+          const { body: childCategory } = await vanillaClient.createCategory({
+            name: item.name,
+            urlcode: `${urlCodeTemplate({ challenge })}`,
+            parentCategoryID: challengeCategory.categoryID
           })
-          logger.info(`The '${discussion.title}' discussion/announcement was created`)
+          logger.info(`The '${item.name}' category was created`)
+          await createDiscussions(group, challenge, item.discussions, childCategory);
         }
+      }
+
+      if(groupTemplate.discussions){
+         await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory);
+      }
+
+      for (const copilot of copilots) {
+        await manageVanillaUser({challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: copilot.handle})
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
@@ -266,7 +265,47 @@ async function createVanillaGroup (challenge) {
   }
 }
 
+/**
+ * Update a vanilla forum group.
+ *
+ * @param {Object} challenge the challenge data
+ */
+async function updateVanillaGroup (challenge) {
+  logger.info(`The challenge with challengeID=${challenge.id}:`)
+
+  const { body: groups } = await vanillaClient.searchGroups(challenge.id)
+  if (groups.length == 0) {
+      throw new Error('The group wasn\'t found for this challenge')
+  }
+
+  if (groups.length > 1) {
+    throw new Error('Multiple groups were found for this challenge')
+  }
+
+  const {body: updatedGroup} = await vanillaClient.updateGroup(groups[0].groupID, {name: challenge.name})
+
+  logger.info(`The group was updated: ${JSON.stringify(updatedGroup)}`)
+}
+
+async function createDiscussions (group, challenge, templateDiscussions, vanillaCategory) {
+    for (const discussion of templateDiscussions) {
+      // create a discussion
+      const bodyTemplate = _.template(discussion.body)
+      await vanillaClient.createDiscussion({
+        body: bodyTemplate({ challenge: challenge }),
+        name: discussion.title,
+        groupID: group.groupID,
+        categoryID: vanillaCategory.categoryID,
+        format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
+        closed: discussion.closed,
+        pinned: discussion.announce
+      })
+      logger.info(`The '${discussion.title}' discussion/announcement was created`)
+    }
+}
+
 module.exports = {
   manageVanillaUser,
-  createVanillaGroup
+  createVanillaGroup,
+  updateVanillaGroup
 }

@@ -18,37 +18,37 @@
                 "type": "secret"
               },
               "categories": [
-                 {
-                    "name": "Code Documents",
-                    "urlcode": "${ challenge.id }-documents",
-                    "discussions": [
-                      {
-                        "title": "Challenge Overview",
-                        "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
-                        "announce": 1,
-                        "closed": 1
-                      },
-                      {
-                        "title": "Base Code",
-                        "body": "See attached.",
-                        "announce": 0,
-                        "closed": 0
-                      },
-                      {
-                        "title": "Coding Structure",
-                        "body": "Please see the attached document from the client and make sure you follow the required structure and guidelines. This is a critical requriement.",
-                        "announce": 0,
-                        "closed": 0
-                      },
-                      {
-                        "title": "Please give us feedback on this challenge!",
-                        "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
-                        "announce": 0,
-                        "closed": 0
-                      }
-                    ]
-                  },
-                 {
+                {
+                  "name": "Code Documents",
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                      "announce": 1,
+                      "closed": 1
+                    },
+                    {
+                      "title": "Base Code",
+                      "body": "See attached.",
+                      "announce": 0,
+                      "closed": 0
+                    },
+                    {
+                      "title": "Coding Structure",
+                      "body": "Please see the attached document from the client and make sure you follow the required structure and guidelines. This is a critical requriement.",
+                      "announce": 0,
+                      "closed": 0
+                    },
+                    {
+                      "title": "Please give us feedback on this challenge!",
+                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
                   "name": "Code Questions",
                   "urlcode": "${ challenge.id }-questions",
                   "discussions": [
@@ -60,7 +60,61 @@
                     }
                   ]
                 }
-                ]
+              ]
+            },
+            {
+              "track": "Quality Assurance",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "group": {
+                "name": "${ challenge.name }",
+                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
+                "type": "secret"
+              },
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                      "announce": 1,
+                      "closed": 1
+                    },
+                    {
+                      "title": "Base Code",
+                      "body": "See attached.",
+                      "announce": 0,
+                      "closed": 0
+                    },
+                    {
+                      "title": "Coding Structure",
+                      "body": "Please see the attached document from the client and make sure you follow the required structure and guidelines. This is a critical requriement.",
+                      "announce": 0,
+                      "closed": 0
+                    },
+                    {
+                      "title": "Please give us feedback on this challenge!",
+                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully, we tried to be clear and simple with the specs. However, if you still have questions let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -69,7 +123,40 @@
           "urlcode": "design-forums",
           "categories": [
             {
-              "track": "Design"
+              "track": "Design",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "group": {
+                "name": "${ challenge.name }",
+                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
+                "type": "secret"
+              },
+              "discussions": [
+                {
+                  "title": "Spec Review Discussion",
+                  "body": "Spec Review Discussion",
+                  "announce": 0,
+                  "closed": 0
+                },
+                {
+                  "title": "Please give us feedback on this challenge!",
+                  "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                  "announce": 0,
+                  "closed": 0
+                },
+                {
+                  "title": "Welcome!",
+                  "body": "Please read the requirements carefully, we tried to be clear and simple with the specs. However, if you still have questions let me know, I'll be glad to help you.",
+                  "announce": 0,
+                  "closed": 0
+                },
+                {
+                  "title": "Challenge Overview",
+                  "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                  "announce": 1,
+                  "closed": 1
+                }
+              ]
             }
           ]
         },
@@ -78,7 +165,58 @@
           "urlcode": "data-science-forums",
           "categories": [
             {
-              "track": "Data Science"
+              "track": "Data Science",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "group": {
+                "name": "${ challenge.name }",
+                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
+                "type": "secret"
+              },
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                      "announce": 1,
+                      "closed": 1
+                    },
+                    {
+                      "title": "Base Code",
+                      "body": "See attached.",
+                      "announce": 0,
+                      "closed": 0
+                    },
+                    {
+                      "title": "Coding Structure",
+                      "body": "Please see the attached document from the client and make sure you follow the required structure and guidelines. This is a critical requriement.",
+                      "announce": 0,
+                      "closed": 0
+                    },
+                    {
+                      "title": "Please give us feedback on this challenge!",
+                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully, we tried to be clear and simple with the specs. However, if you still have questions let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -89,7 +227,6 @@
     },
     {
       "name": "News, Programs & Events Discussions"
-
     }
   ]
 }

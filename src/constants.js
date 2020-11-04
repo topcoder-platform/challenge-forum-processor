@@ -9,6 +9,8 @@ module.exports = {
     TOPICS: {
       // For challenge creation
       CHALLENGE_CREATE_TOPIC: 'challenge.notification.create',
+      // For challenge update
+      CHALLENGE_UPDATE_TOPIC: 'challenge.notification.update',
       // For member registrations and de-registrations
       CHALLENGE_NOTIFICATION_TOPIC: 'challenge.notification.events',
       // For co-pilots,PMs,etc.
@@ -36,6 +38,9 @@ module.exports = {
   USER_ACTIONS: {
     INVITE: 'invite',
     KICK: 'kick'
+  },
+  TOPCODER: {
+    ROLE_COPILOT : 'copilot'
   },
   VANILLA: {
     CHALLENGES_FORUM: 'Challenges Forums',

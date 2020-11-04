@@ -105,10 +105,21 @@ async function getRoles(userId) {
   return reqToAPI("GET", path);
 }
 
+/**
+ * Gets the project
+ * @param {int} projectId Project's Id (int)
+ */
+async function getProject(projectId) {
+  const path = `${config.TOPCODER.API_URL}/v5/projects/${projectId}`;
+  return reqToAPI("GET", path);
+}
+
+
 module.exports = {
   getUserDetailsById,
   getUserDetailsByHandle,
   getChallenge,
   updateChallenge,
   getRoles,
+  getProject
 };

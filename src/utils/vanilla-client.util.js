@@ -107,6 +107,11 @@ function getVanillaClient () {
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
         .send(data)
     },
+    updateGroup: (groupId, data) => {
+      return request.patch(`${config.VANILLA.API_URL}/groups/${groupId}`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
     searchGroups: (query) => {
       const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
       queryParams.challengeID = query
