@@ -228,34 +228,26 @@ async function createVanillaGroup (challenge) {
         name: challengeDetailsDiscussion.name,
         urlcode: `${challenge.id}`,
         parentCategoryID: parentCategory[0].categoryID,
-        displayAs: constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES
+        displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS
       })
 
       logger.info(`The '${challengeCategory.name}' category was created`)
 
-      for (const item of groupTemplate.categories) {
-        const urlCodeTemplate = _.template(item.urlcode)
-        const { body: childCategory } = await vanillaClient.createCategory({
-          name: item.name,
-          urlcode: `${urlCodeTemplate({ challenge })}`,
-          parentCategoryID: challengeCategory.categoryID
-        })
-        logger.info(`The '${item.name}' category was created`)
-
-        for (const discussion of item.discussions) {
-          // create a code documents discussion
-          const bodyTemplate = _.template(discussion.body)
-          await vanillaClient.createDiscussion({
-            body: bodyTemplate({ challenge: challenge }),
-            name: discussion.title,
-            groupID: group.groupID,
-            categoryID: childCategory.categoryID,
-            format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
-            closed: discussion.closed,
-            pinned: discussion.announce
+      if(groupTemplate.categories) {
+        for (const item of groupTemplate.categories) {
+          const urlCodeTemplate = _.template(item.urlcode)
+          const { body: childCategory } = await vanillaClient.createCategory({
+            name: item.name,
+            urlcode: `${urlCodeTemplate({ challenge })}`,
+            parentCategoryID: challengeCategory.categoryID
           })
-          logger.info(`The '${discussion.title}' discussion/announcement was created`)
+          logger.info(`The '${item.name}' category was created`)
+          await createDiscussions(group, challenge, item.discussions, childCategory);
         }
+      }
+
+      if(groupTemplate.discussions){
+         await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory);
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
@@ -264,6 +256,23 @@ async function createVanillaGroup (challenge) {
       logger.info('The challenge was updated')
     }
   }
+}
+
+async function createDiscussions (group, challenge, templateDiscussions, vanillaCategory) {
+    for (const discussion of templateDiscussions) {
+      // create a discussion
+      const bodyTemplate = _.template(discussion.body)
+      await vanillaClient.createDiscussion({
+        body: bodyTemplate({ challenge: challenge }),
+        name: discussion.title,
+        groupID: group.groupID,
+        categoryID: vanillaCategory.categoryID,
+        format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
+        closed: discussion.closed,
+        pinned: discussion.announce
+      })
+      logger.info(`The '${discussion.title}' discussion/announcement was created`)
+    }
 }
 
 module.exports = {
