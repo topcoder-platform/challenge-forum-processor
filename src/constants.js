@@ -40,7 +40,7 @@ module.exports = {
     KICK: 'kick'
   },
   TOPCODER: {
-    ROLE_COPILOT : 'copilot'
+    ROLE_COPILOT: 'copilot'
   },
   VANILLA: {
     CHALLENGES_FORUM: 'Challenges Forums',
