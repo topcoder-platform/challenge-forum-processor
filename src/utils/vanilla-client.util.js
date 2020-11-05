@@ -24,6 +24,11 @@ function getVanillaClient () {
           throw err
         })
     },
+    updateCategory: (categoryId, data) => {
+      return request.patch(`${config.VANILLA.API_URL}/categories/${categoryId}`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
     getCategories: (parentCategoryID) => {
       const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
       if (_.isNumber(parentCategoryID)) {
@@ -39,9 +44,14 @@ function getVanillaClient () {
       return request.get(`${config.VANILLA.API_URL}/categories`)
         .query(queryParams)
     },
-    getGroupCategory: () => {
+    getCategoryByUrlcode: (urlcode) => {
       const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
-      return request.get(`${config.VANILLA.API_URL}/groups/category`)
+      return request.get(`${config.VANILLA.API_URL}/categories/urlcode/${urlcode}`)
+        .query(queryParams)
+    },
+    getCategoryForEdit: (categoryId) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      return request.get(`${config.VANILLA.API_URL}/categories/${categoryId}/edit`)
         .query(queryParams)
     },
     watchCategory: (categoryId, userId, data) => {

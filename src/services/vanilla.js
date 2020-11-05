@@ -35,24 +35,24 @@ async function manageVanillaUser (data) {
   }
   const topcoderProfile = JSON.parse(topcoderProfileResponseStr).result.content[0]
 
-  const {text: topcoderRolesResponseStr} = await topcoderApi.getRoles(topcoderProfile.id)
+  const { text: topcoderRolesResponseStr } = await topcoderApi.getRoles(topcoderProfile.id)
   const topcoderRolesResponse = JSON.parse(topcoderRolesResponseStr).result.content
   const topcoderRoleNames = _.map(topcoderRolesResponse, 'roleName')
 
-  const{ body: allVanillaRoles } = await vanillaClient.getAllRoles()
+  const { body: allVanillaRoles } = await vanillaClient.getAllRoles()
 
   // Add all missing Topcoder roles
   await addTopcoderRoles(allVanillaRoles, topcoderRoleNames)
 
   const { body: allNewVanillaRoles } = await vanillaClient.getAllRoles()
 
-  let allTopcoderRoles = _.filter(allNewVanillaRoles, { type: 'topcoder' })
+  const allTopcoderRoles = _.filter(allNewVanillaRoles, { type: 'topcoder' })
 
-  let nonTopcoderRoles = _.filter(allNewVanillaRoles, role => role['type'] != 'topcoder')
-  let nonTopcoderRoleIDs = _.map(nonTopcoderRoles, 'roleID')
+  const nonTopcoderRoles = _.filter(allNewVanillaRoles, role => role.type !== 'topcoder')
+  const nonTopcoderRoleIDs = _.map(nonTopcoderRoles, 'roleID')
 
-  let userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role['name']))
-  let userTopcoderRoleIDs = _.map(userTopcoderRoles, 'roleID')
+  const userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role.name))
+  const userTopcoderRoleIDs = _.map(userTopcoderRoles, 'roleID')
 
   if (!vanillaUser) {
     logger.info(`The '${username}' user wasn't found in Vanilla`)
@@ -79,7 +79,7 @@ async function manageVanillaUser (data) {
     vanillaUser = user
 
     // Sync Topcoder roles
-    const allCurrentUserRoleIDs = _.map(vanillaUser.roles, 'roleID');
+    const allCurrentUserRoleIDs = _.map(vanillaUser.roles, 'roleID')
     const currentVanillaRoleIDs = _.intersection(allCurrentUserRoleIDs, nonTopcoderRoleIDs)
     const userData = {
       roleID: [...currentVanillaRoleIDs, ...userTopcoderRoleIDs]
@@ -119,15 +119,15 @@ async function manageVanillaUser (data) {
   }
 }
 
-async function addTopcoderRoles(allVanillaRoles, topcoderRoleNames) {
+async function addTopcoderRoles (allVanillaRoles, topcoderRoleNames) {
   const allTopcoderRoles = _.filter(allVanillaRoles, { type: 'topcoder' })
-  const userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role['name']))
+  const userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role.name))
   const userTopcoderRoleIDs = _.map(userTopcoderRoles, 'roleID')
 
-  if(topcoderRoleNames.length !=  userTopcoderRoleIDs.length) {
-    const missingRoles = _.difference(topcoderRoleNames,  _.map(userTopcoderRoles, 'name'))
+  if (topcoderRoleNames.length !== userTopcoderRoleIDs.length) {
+    const missingRoles = _.difference(topcoderRoleNames, _.map(userTopcoderRoles, 'name'))
     logger.info('Missing roles:' + JSON.stringify(missingRoles))
-    for(const missingRole of missingRoles) {
+    for (const missingRole of missingRoles) {
       await vanillaClient.createRole({
         canSession: 1,
         description: 'Added by Challenge Forum Processor',
@@ -168,7 +168,7 @@ async function createVanillaGroup (challenge) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
   }
 
-  const {body: project} =  await topcoderApi.getProject(challenge.projectId)
+  const { body: project } = await topcoderApi.getProject(challenge.projectId)
   const copilots = _.filter(project.members, { role: constants.TOPCODER.ROLE_COPILOT })
   const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
   if (!challengesForums) {
@@ -228,7 +228,7 @@ async function createVanillaGroup (challenge) {
 
       // Create the root challenge category
       const { body: challengeCategory } = await vanillaClient.createCategory({
-        name: challengeDetailsDiscussion.name,
+        name: challenge.name,
         urlcode: `${challenge.id}`,
         parentCategoryID: parentCategory[0].categoryID,
         displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS
@@ -236,7 +236,7 @@ async function createVanillaGroup (challenge) {
 
       logger.info(`The '${challengeCategory.name}' category was created`)
 
-      if(groupTemplate.categories) {
+      if (groupTemplate.categories) {
         for (const item of groupTemplate.categories) {
           const urlCodeTemplate = _.template(item.urlcode)
           const { body: childCategory } = await vanillaClient.createCategory({
@@ -245,16 +245,16 @@ async function createVanillaGroup (challenge) {
             parentCategoryID: challengeCategory.categoryID
           })
           logger.info(`The '${item.name}' category was created`)
-          await createDiscussions(group, challenge, item.discussions, childCategory);
+          await createDiscussions(group, challenge, item.discussions, childCategory)
         }
       }
 
-      if(groupTemplate.discussions){
-         await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory);
+      if (groupTemplate.discussions) {
+        await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory)
       }
 
       for (const copilot of copilots) {
-        await manageVanillaUser({challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: copilot.handle})
+        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: copilot.handle })
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
@@ -274,34 +274,47 @@ async function updateVanillaGroup (challenge) {
   logger.info(`The challenge with challengeID=${challenge.id}:`)
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
-  if (groups.length == 0) {
-      throw new Error('The group wasn\'t found for this challenge')
+  if (groups.length === 0) {
+    throw new Error('The group wasn\'t found for this challenge')
   }
 
   if (groups.length > 1) {
     throw new Error('Multiple groups were found for this challenge')
   }
 
-  const {body: updatedGroup} = await vanillaClient.updateGroup(groups[0].groupID, {name: challenge.name})
-
+  const { body: updatedGroup } = await vanillaClient.updateGroup(groups[0].groupID, { name: challenge.name })
   logger.info(`The group was updated: ${JSON.stringify(updatedGroup)}`)
+
+  const { body: groupCategory } = await vanillaClient.getCategoryByUrlcode(`${challenge.id}`)
+  if (!groupCategory) {
+    throw new Error('Group category wasn\'t found for this challenge')
+  }
+
+  const { body: groupCategoryForEdit } = await vanillaClient.getCategoryForEdit(groupCategory.categoryID)
+  if (!groupCategoryForEdit) {
+    throw new Error('Group category wasn\'t found for this challenge')
+  }
+  groupCategoryForEdit.name = challenge.name
+
+  const { body: updatedGroupCategory } = await vanillaClient.updateCategory(groupCategoryForEdit.categoryID, groupCategoryForEdit)
+  logger.info(`The group category was updated: ${JSON.stringify(updatedGroupCategory)}`)
 }
 
 async function createDiscussions (group, challenge, templateDiscussions, vanillaCategory) {
-    for (const discussion of templateDiscussions) {
-      // create a discussion
-      const bodyTemplate = _.template(discussion.body)
-      await vanillaClient.createDiscussion({
-        body: bodyTemplate({ challenge: challenge }),
-        name: discussion.title,
-        groupID: group.groupID,
-        categoryID: vanillaCategory.categoryID,
-        format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
-        closed: discussion.closed,
-        pinned: discussion.announce
-      })
-      logger.info(`The '${discussion.title}' discussion/announcement was created`)
-    }
+  for (const discussion of templateDiscussions) {
+    // create a discussion
+    const bodyTemplate = _.template(discussion.body)
+    await vanillaClient.createDiscussion({
+      body: bodyTemplate({ challenge: challenge }),
+      name: discussion.title,
+      groupID: group.groupID,
+      categoryID: vanillaCategory.categoryID,
+      format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
+      closed: discussion.closed,
+      pinned: discussion.announce
+    })
+    logger.info(`The '${discussion.title}' discussion/announcement was created`)
+  }
 }
 
 module.exports = {
