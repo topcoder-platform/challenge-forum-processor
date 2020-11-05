@@ -1,5 +1,4 @@
 const config = require('config')
-const _ = require('lodash')
 
 /**
  * Processes a payload from the topic, to be consumed by the handler
