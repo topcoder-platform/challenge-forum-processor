@@ -30,13 +30,16 @@ function processPayload (payload, topic) {
         action: constants.USER_ACTIONS.KICK
       }
     case constants.KAFKA.TOPICS.CHALLENGE_NOTIFICATION_TOPIC:
+      if (!(payload.type in actionMap)) {
+        throw new Error(`Not supported ${payload.type}. Only message types ${JSON.stringify(Object.keys(eventTypes))} are processed from '${topic}'`)
+      }
       return {
         challengeId: payload.data.challengeId,
         userId: payload.data.userId,
         action: actionMap[payload.type]
       }
     default:
-      throw new Error('Received message from unrecognized topic')
+      throw new Error(`Received message from unrecognized '${topic}'`)
   }
 }
 
