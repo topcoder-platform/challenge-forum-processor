@@ -185,8 +185,6 @@ async function createVanillaGroup (challenge) {
     return member.role === constants.TOPCODER.ROLE_COPILOT || member.role === constants.TOPCODER.ROLE_MANAGER
   })
 
-  logger.info('Members: ' + JSON.stringify(members))
-
   const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
   if (!challengesForums) {
     throw new Error(`The '${constants.VANILLA.CHALLENGES_FORUM}' category wasn't found in the template json file`)
