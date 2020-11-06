@@ -87,7 +87,15 @@ async function manageVanillaUser (data) {
     await vanillaClient.updateUser(vanillaUser.userID, userData)
   }
 
-  const { body: categories } = await vanillaClient.getCategoriesByParentUrlCode(challengeId)
+  let categories = []
+  const { body: nestedCategories } = await vanillaClient.getCategoriesByParentUrlCode(challengeId)
+  categories = nestedCategories
+
+  // Some group might not have nested categories
+  if (categories.length === 0) {
+    const { body: parentCategory } = await vanillaClient.getCategoryByUrlcode(challengeId)
+    categories.push(parentCategory)
+  }
 
   // Choose action to perform
   switch (action) {
@@ -100,6 +108,8 @@ async function manageVanillaUser (data) {
       for (const category of categories) {
         await vanillaClient.watchCategory(category.categoryID, vanillaUser.userID, { watched: true })
         logger.info(`The user ${vanillaUser.name} watches categoryID=${category.categoryID} associated with challenge ${challengeId}`)
+        await vanillaClient.followCategory(category.categoryID, { followed: true, userID: vanillaUser.userID })
+        logger.info(`The user ${vanillaUser.name} follows categoryID=${category.categoryID} associated with challenge ${challengeId}`)
       }
       break
     }
@@ -108,6 +118,8 @@ async function manageVanillaUser (data) {
       for (const category of categories) {
         await vanillaClient.watchCategory(category.categoryID, vanillaUser.userID, { watched: false })
         logger.info(`The user ${vanillaUser.name} stopped watching categoryID=${category.categoryID} associated with challenge ${challengeId}`)
+        await vanillaClient.followCategory(category.categoryID, { followed: false, userID: vanillaUser.userID })
+        logger.info(`The user ${vanillaUser.name} unfollows categoryID=${category.categoryID} associated with challenge ${challengeId}`)
       }
       await vanillaClient.removeUserFromGroup(group.groupID, vanillaUser.userID)
       logger.info(`The user '${vanillaUser.name}' was removed from the group '${group.name}'`)

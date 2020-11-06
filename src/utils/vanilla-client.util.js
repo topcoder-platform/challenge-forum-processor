@@ -24,6 +24,11 @@ function getVanillaClient () {
           throw err
         })
     },
+    followCategory: (categoryId, data) => {
+      return request.put(`${config.VANILLA.API_URL}/categories/${categoryId}/follow`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
     updateCategory: (categoryId, data) => {
       return request.patch(`${config.VANILLA.API_URL}/categories/${categoryId}`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
