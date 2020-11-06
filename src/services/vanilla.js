@@ -181,7 +181,12 @@ async function createVanillaGroup (challenge) {
   }
 
   const { body: project } = await topcoderApi.getProject(challenge.projectId)
-  const copilots = _.filter(project.members, { role: constants.TOPCODER.ROLE_COPILOT })
+  const members = _.filter(project.members, member => {
+    return member.role === constants.TOPCODER.ROLE_COPILOT || member.role === constants.TOPCODER.ROLE_MANAGER
+  })
+
+  logger.info('Members: ' + JSON.stringify(members))
+
   const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
   if (!challengesForums) {
     throw new Error(`The '${constants.VANILLA.CHALLENGES_FORUM}' category wasn't found in the template json file`)
@@ -265,8 +270,8 @@ async function createVanillaGroup (challenge) {
         await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory)
       }
 
-      for (const copilot of copilots) {
-        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: copilot.handle })
+      for (const member of members) {
+        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: member.handle })
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
