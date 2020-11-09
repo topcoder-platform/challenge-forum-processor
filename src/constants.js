@@ -40,8 +40,11 @@ module.exports = {
     KICK: 'kick'
   },
   TOPCODER: {
-    ROLE_COPILOT: 'copilot',
-    ROLE_MANAGER: 'manager'
+    PROJECT_ROLES: {
+      COPILOT: 'copilot',
+      MANAGER: 'manager',
+      CUSTOMER: 'customer'
+    }
   },
   VANILLA: {
     CHALLENGES_FORUM: 'Challenges Forums',
