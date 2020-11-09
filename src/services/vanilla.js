@@ -181,8 +181,9 @@ async function createVanillaGroup (challenge) {
   }
 
   const { body: project } = await topcoderApi.getProject(challenge.projectId)
+  const allProjectRoles = _.values(constants.TOPCODER.PROJECT_ROLES)
   const members = _.filter(project.members, member => {
-    return member.role === constants.TOPCODER.ROLE_COPILOT || member.role === constants.TOPCODER.ROLE_MANAGER
+    return _.includes(allProjectRoles, member.role)
   })
 
   const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
