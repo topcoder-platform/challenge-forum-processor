@@ -78,7 +78,7 @@
                   "discussions": [
                     {
                       "title": "Challenge Overview",
-                      "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                      "body": "<a href='<%- challenge.url %>'>Back to Challenge Details page</a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
                       "announce": 1,
                       "closed": 1
                     },
@@ -152,7 +152,7 @@
                 },
                 {
                   "title": "Challenge Overview",
-                  "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                  "body": "<a href='<%- challenge.url %>'>Back to Challenge Details page</a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
                   "announce": 1,
                   "closed": 1
                 }
@@ -180,7 +180,7 @@
                   "discussions": [
                     {
                       "title": "Challenge Overview",
-                      "body": "<a href='<%- challenge.url %>'><%- challenge.name %></a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
+                      "body": "<a href='<%- challenge.url %>'>Back to Challenge Details page</a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
                       "announce": 1,
                       "closed": 1
                     },
