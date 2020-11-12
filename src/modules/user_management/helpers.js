@@ -30,13 +30,24 @@ function processPayload (payload, topic) {
         action: constants.USER_ACTIONS.KICK
       }
     case constants.KAFKA.TOPICS.CHALLENGE_NOTIFICATION_TOPIC:
+      if (!(payload.type in actionMap)) {
+        throw new Error(`Not supported ${payload.type}. Only message types ${JSON.stringify(Object.keys(eventTypes))} are processed from '${topic}'`)
+      }
+      if(payload.detail && payload.detail.challengeId) {
+        //hack due to inconsistent payload from USER_UNREGISTRATION event
+        return {
+          challengeId: payload.detail.challengeId,
+          userId: payload.detail.userId,
+          action: actionMap[payload.type]
+        }
+      }
       return {
         challengeId: payload.data.challengeId,
         userId: payload.data.userId,
         action: actionMap[payload.type]
       }
     default:
-      throw new Error('Received message from unrecognized topic')
+      throw new Error(`Received message from unrecognized '${topic}'`)
   }
 }
 
@@ -45,7 +56,7 @@ function processPayload (payload, topic) {
  * @param {String} userId
  */
 async function getTopcoderUserHandle (userId) {
-  const userDetails = await topcoderApi.getUserDetails(userId)
+  const userDetails = await topcoderApi.getUserDetailsById(userId)
   const userHandle = _.get(userDetails, 'body.result.content[0].handle')
   if (_.isUndefined(userHandle)) {
     throw new Error('Topcoder user not found')

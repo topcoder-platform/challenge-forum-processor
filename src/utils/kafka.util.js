@@ -29,16 +29,14 @@ function checkConsumer (consumer) {
 function handlerWrapper (handler) {
   return async function wrapper (messageSet, topic, partition) {
     try {
-      const items = _.map(messageSet, item => {
+      const items = _.map(messageSet, (item) => {
         const i = JSON.parse(item.message.value.toString('utf8'))
         return i.payload
       })
       logger.debug(`Message from ${topic}: ${JSON.stringify(items)}`)
       handler(items, topic, partition)
     } catch (err) {
-      const errMessage = `"message" is not a valid JSON-formatted string: ${
-        err.message
-      }`
+      const errMessage = `"message" is not a valid JSON-formatted string: ${err.message}`
       logger.error(errMessage)
     }
   }
@@ -73,8 +71,9 @@ async function initializeKafkaClient (kafkaConfig, consumersConfig) {
     return
   }
   // Subscribe to topics
-  _.each(consumersConfig, cfg => {
-    _.each(cfg.topics, topic => {
+  _.each(consumersConfig, (cfg) => {
+    _.each(cfg.topics, (topic) => {
+      logger.info('Subscribed to kafka topic:' + topic)
       consumer.subscribe(topic, cfg.options, handlerWrapper(cfg.handler))
     })
   })

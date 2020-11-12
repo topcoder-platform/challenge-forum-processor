@@ -24,6 +24,16 @@ function getVanillaClient () {
           throw err
         })
     },
+    followCategory: (categoryId, data) => {
+      return request.put(`${config.VANILLA.API_URL}/categories/${categoryId}/follow`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
+    updateCategory: (categoryId, data) => {
+      return request.patch(`${config.VANILLA.API_URL}/categories/${categoryId}`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
     getCategories: (parentCategoryID) => {
       const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
       if (_.isNumber(parentCategoryID)) {
@@ -37,6 +47,16 @@ function getVanillaClient () {
       queryParams.parentCategoryCode = parentUrlCode
       queryParams.maxDepth = 1
       return request.get(`${config.VANILLA.API_URL}/categories`)
+        .query(queryParams)
+    },
+    getCategoryByUrlcode: (urlcode) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      return request.get(`${config.VANILLA.API_URL}/categories/urlcode/${urlcode}`)
+        .query(queryParams)
+    },
+    getCategoryForEdit: (categoryId) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      return request.get(`${config.VANILLA.API_URL}/categories/${categoryId}/edit`)
         .query(queryParams)
     },
     watchCategory: (categoryId, userId, data) => {
@@ -83,6 +103,11 @@ function getVanillaClient () {
           name: username
         })
     },
+    addUser: (data) => {
+      return request.post(`${config.VANILLA.API_URL}/users`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
     getUser: (userId) => {
       return request.get(`${config.VANILLA.API_URL}/users/${userId}`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
@@ -91,6 +116,32 @@ function getVanillaClient () {
       return request.patch(`${config.VANILLA.API_URL}/users/${userId}`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
         .send(data)
+    },
+    createGroup: (data) => {
+      return request.post(`${config.VANILLA.API_URL}/groups`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
+    updateGroup: (groupId, data) => {
+      return request.patch(`${config.VANILLA.API_URL}/groups/${groupId}`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
+    searchGroups: (query) => {
+      const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
+      queryParams.challengeID = query
+      queryParams.page = 1
+      return request.get(`${config.VANILLA.API_URL}/groups`)
+        .query(queryParams)
+    },
+    addUserToGroup: (groupId, data) => {
+      return request.post(`${config.VANILLA.API_URL}/groups/${groupId}/members`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+        .send(data)
+    },
+    removeUserFromGroup: (groupId, userId) => {
+      return request.delete(`${config.VANILLA.API_URL}/groups/${groupId}/members/${userId}`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
     }
   }
 }
