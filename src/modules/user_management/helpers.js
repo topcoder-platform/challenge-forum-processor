@@ -33,6 +33,14 @@ function processPayload (payload, topic) {
       if (!(payload.type in actionMap)) {
         throw new Error(`Not supported ${payload.type}. Only message types ${JSON.stringify(Object.keys(eventTypes))} are processed from '${topic}'`)
       }
+      if(payload.detail && payload.detail.challengeId) {
+        //hack due to inconsistent payload from USER_UNREGISTRATION event
+        return {
+          challengeId: payload.detail.challengeId,
+          userId: payload.detail.userId,
+          action: actionMap[payload.type]
+        }
+      }
       return {
         challengeId: payload.data.challengeId,
         userId: payload.data.userId,
