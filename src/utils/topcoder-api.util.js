@@ -2,6 +2,7 @@ const config = require('config')
 const _ = require('lodash')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const request = require('superagent')
+const logger = require('./logger.util')
 
 let m2m = null
 
@@ -19,6 +20,10 @@ async function getM2MToken () {
       ])
     )
   }
+  logger.info(
+    `Getting M2M token for client ID=${config.TOPCODER.AUTH0_CLIENT_ID}`
+  )
+
   return m2m.getMachineToken(
     config.TOPCODER.AUTH0_CLIENT_ID,
     config.TOPCODER.AUTH0_CLIENT_SECRET
@@ -59,11 +64,61 @@ async function reqToAPI (reqType, path, reqBody) {
  * Gets the user's handle given the user's ID
  * @param {String} userId User's ID (6-digit numeric)
  */
-async function getUserDetails (userId) {
+async function getUserDetailsById (userId) {
   const path = `${config.TOPCODER.API_URL}/v3/users?filter=id%3D${userId}`
   return reqToAPI('GET', path)
 }
 
+/**
+ * Gets the user by Topcoder's handle
+ * @param {String} handle
+ */
+async function getUserDetailsByHandle (handle) {
+  const path = `${config.TOPCODER.API_URL}/v3/users?filter=handle%3D${handle}`
+  return reqToAPI('GET', path)
+}
+
+/**
+ * Gets the challenge
+ * @param {String} challengeId Challenge's ID (uuid)
+ */
+async function getChallenge (challengeId) {
+  const path = `${config.TOPCODER.API_URL}/v5/challenges/${challengeId}`
+  return reqToAPI('GET', path)
+}
+
+/**
+ * Update the challenge
+ * @param {String} challengeId Challenge's ID (uuid)
+ */
+async function updateChallenge (challengeId, data) {
+  const path = `${config.TOPCODER.API_URL}/v5/challenges/${challengeId}`
+  return reqToAPI('PATCH', path, data)
+}
+
+/**
+ * Gets the roles for an user
+ * @param {int} userId User's ID
+ */
+async function getRoles (userId) {
+  const path = `${config.TOPCODER.API_URL}/v3/roles?filter=subjectID%3D${userId}`
+  return reqToAPI('GET', path)
+}
+
+/**
+ * Gets the project
+ * @param {int} projectId Project's Id (int)
+ */
+async function getProject (projectId) {
+  const path = `${config.TOPCODER.API_URL}/v5/projects/${projectId}`
+  return reqToAPI('GET', path)
+}
+
 module.exports = {
-  getUserDetails
+  getUserDetailsById,
+  getUserDetailsByHandle,
+  getChallenge,
+  updateChallenge,
+  getRoles,
+  getProject
 }

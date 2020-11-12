@@ -1,31 +1,27 @@
 const config = require('config')
 const util = require('util')
 const logger = require('../../utils/logger.util')
-const { createRocketChatRoom } = require('../../services/rokect')
-const { createVanillaGroup } = require('../../services/vanilla')
+const { updateVanillaGroup } = require('../../services/vanilla')
 const { processPayload } = require('./helpers')
 
 const services = []
 
-if (config.ROCKETCHAT_ENABLED) {
-  services.push(createRocketChatRoom)
-}
-
 if (config.VANILLA_ENABLED) {
-  services.push(createVanillaGroup)
+  services.push(updateVanillaGroup)
 }
 
 /**
  * Handle a set of messages from the Kafka topic
  * @param {Array} messageSet
+ * @param {String} topic
  */
-async function handler (messageSet) {
+async function handler (messageSet, topic) {
   if (services.length === 0) {
     logger.warn('No enabled services to handle messages')
     return
   }
   for (const item of messageSet) {
-    const challenge = processPayload(item)
+    const challenge = processPayload(item, topic)
     for (const service of services) {
       await service(challenge)
         .catch(err => {
