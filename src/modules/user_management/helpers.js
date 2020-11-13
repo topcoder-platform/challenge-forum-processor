@@ -30,11 +30,8 @@ function processPayload (payload, topic) {
         action: constants.USER_ACTIONS.KICK
       }
     case constants.KAFKA.TOPICS.CHALLENGE_NOTIFICATION_TOPIC:
-      if (!(payload.type in actionMap)) {
-        throw new Error(`Not supported ${payload.type}. Only message types ${JSON.stringify(Object.keys(eventTypes))} are processed from '${topic}'`)
-      }
-      if(payload.detail && payload.detail.challengeId) {
-        //hack due to inconsistent payload from USER_UNREGISTRATION event
+      if (payload.detail && payload.detail.challengeId) {
+        // hack due to inconsistent payload from USER_UNREGISTRATION event
         return {
           challengeId: payload.detail.challengeId,
           userId: payload.detail.userId,
