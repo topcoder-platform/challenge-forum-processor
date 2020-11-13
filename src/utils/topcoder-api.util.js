@@ -20,9 +20,6 @@ async function getM2MToken () {
       ])
     )
   }
-  logger.info(
-    `Getting M2M token for client ID=${config.TOPCODER.AUTH0_CLIENT_ID}`
-  )
 
   return m2m.getMachineToken(
     config.TOPCODER.AUTH0_CLIENT_ID,
