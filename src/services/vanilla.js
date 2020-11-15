@@ -192,7 +192,7 @@ async function createVanillaGroup (challenge) {
     if (challengeDetailsDiscussion.type === 'challenge' && challengeDetailsDiscussion.provider === 'vanilla') {
       if (challengeDetailsDiscussion.url && challengeDetailsDiscussion.url !== '') {
         logger.info(`The url has been set for the ${challengeDetailsDiscussion.name} discussion with type='challenge' and provider='vanilla'`)
-       // continue
+        continue
       }
 
       const { body: groups } = await vanillaClient.searchGroups(challenge.id)
