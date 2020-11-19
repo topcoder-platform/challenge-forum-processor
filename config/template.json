@@ -15,7 +15,8 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this forum, thanks!",
-                "type": "secret"
+                "privacy": "secret",
+                "type": "challenge"
               },
               "categories": [
                 {
@@ -57,7 +58,8 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
-                "type": "secret"
+                "privacy": "secret",
+                "type": "challenge"
               },
               "categories": [
                 {
@@ -105,7 +107,8 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
-                "type": "secret"
+                "privacy": "secret",
+                "type": "challenge"
               },
               "discussions": [
                 {
@@ -147,7 +150,8 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
-                "type": "secret"
+                "privacy": "secret",
+                "type": "challenge"
               },
               "categories": [
                 {
