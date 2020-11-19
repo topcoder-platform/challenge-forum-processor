@@ -206,6 +206,7 @@ async function createVanillaGroup (challenge) {
       const groupDescriptionTemplate = _.template(groupTemplate.group.description)
       const { body: group } = await vanillaClient.createGroup({
         name: groupNameTemplate({ challenge }),
+        privacy: groupTemplate.group.privacy,
         type: groupTemplate.group.type,
         description: groupDescriptionTemplate({ challenge }),
         challengeID: `${challenge.id}`,
