@@ -17,10 +17,15 @@ const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
  * @returns {undefined}
  */
 async function manageVanillaUser (data) {
-  const { challengeId, action, handle: username } = data
+  const { challengeId, action, handle: username, role: projectRole } = data
   logger.info(`Managing users for challengeID=${challengeId} ...`)
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
   const group = groups.length > 0 ? groups[0] : null
+
+  // Only members and copilots will receive notifications
+  const watch = (!projectRole || projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT) ? 1 : 0
+  const follow = 1
+
   if (!group) {
     throw new Error('The group wasn\'t not found by challengeID')
   }
@@ -87,21 +92,13 @@ async function manageVanillaUser (data) {
     await vanillaClient.updateUser(vanillaUser.userID, userData)
   }
 
-  let categories = []
-  const { body: nestedCategories } = await vanillaClient.getCategoriesByParentUrlCode(challengeId)
-  categories = nestedCategories
-
-  // Some group might not have nested categories
-  if (categories.length === 0) {
-    const { body: parentCategory } = await vanillaClient.getCategoryByUrlcode(challengeId)
-    categories.push(parentCategory)
-  }
-
   // Choose action to perform
   switch (action) {
     case constants.USER_ACTIONS.INVITE: {
       await vanillaClient.addUserToGroup(group.groupID, {
-        userID: vanillaUser.userID
+        userID: vanillaUser.userID,
+        watch: watch,
+        follow: follow
       })
       logger.info(`The user '${vanillaUser.name}' was added to the group '${group.name}'`)
       break
@@ -259,7 +256,7 @@ async function createVanillaGroup (challenge) {
       }
 
       for (const member of members) {
-        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: member.handle })
+        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: member.handle, role: member.role })
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
