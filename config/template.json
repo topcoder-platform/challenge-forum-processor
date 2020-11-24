@@ -14,8 +14,9 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
-                "type": "secret"
+                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this forum, thanks!",
+                "privacy": "secret",
+                "type": "challenge"
               },
               "categories": [
                 {
@@ -27,18 +28,6 @@
                       "body": "<a href='<%- challenge.url %>'>Back to Challenge Details page</a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
                       "announce": 1,
                       "closed": 1
-                    },
-                    {
-                      "title": "Base Code",
-                      "body": "See attached.",
-                      "announce": 0,
-                      "closed": 0
-                    },
-                    {
-                      "title": "Coding Structure",
-                      "body": "Please see the attached document from the client and make sure you follow the required structure and guidelines. This is a critical requriement.",
-                      "announce": 0,
-                      "closed": 0
                     },
                     {
                       "title": "Please give us feedback on this challenge!",
@@ -54,7 +43,7 @@
                   "discussions": [
                     {
                       "title": "Welcome!",
-                      "body": "Please read the requirements carefully, we tried to be clear and simple with the specs. However, if you still have questions let me know, I'll be glad to help you.",
+                      "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
                       "announce": 0,
                       "closed": 0
                     }
@@ -69,7 +58,8 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
-                "type": "secret"
+                "privacy": "secret",
+                "type": "challenge"
               },
               "categories": [
                 {
@@ -81,18 +71,6 @@
                       "body": "<a href='<%- challenge.url %>'>Back to Challenge Details page</a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
                       "announce": 1,
                       "closed": 1
-                    },
-                    {
-                      "title": "Base Code",
-                      "body": "See attached.",
-                      "announce": 0,
-                      "closed": 0
-                    },
-                    {
-                      "title": "Coding Structure",
-                      "body": "Please see the attached document from the client and make sure you follow the required structure and guidelines. This is a critical requriement.",
-                      "announce": 0,
-                      "closed": 0
                     },
                     {
                       "title": "Please give us feedback on this challenge!",
@@ -108,7 +86,7 @@
                   "discussions": [
                     {
                       "title": "Welcome!",
-                      "body": "Please read the requirements carefully, we tried to be clear and simple with the specs. However, if you still have questions let me know, I'll be glad to help you.",
+                      "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
                       "announce": 0,
                       "closed": 0
                     }
@@ -129,7 +107,8 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
-                "type": "secret"
+                "privacy": "secret",
+                "type": "challenge"
               },
               "discussions": [
                 {
@@ -146,7 +125,7 @@
                 },
                 {
                   "title": "Welcome!",
-                  "body": "Please read the requirements carefully, we tried to be clear and simple with the specs. However, if you still have questions let me know, I'll be glad to help you.",
+                  "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
                   "announce": 0,
                   "closed": 0
                 },
@@ -171,7 +150,8 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
-                "type": "secret"
+                "privacy": "secret",
+                "type": "challenge"
               },
               "categories": [
                 {
@@ -183,18 +163,6 @@
                       "body": "<a href='<%- challenge.url %>'>Back to Challenge Details page</a><br/><ul><% _.forEach(challenge.prizeSets, function(prizeSet) { %><li><%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %></li> <% }); %></ul>",
                       "announce": 1,
                       "closed": 1
-                    },
-                    {
-                      "title": "Base Code",
-                      "body": "See attached.",
-                      "announce": 0,
-                      "closed": 0
-                    },
-                    {
-                      "title": "Coding Structure",
-                      "body": "Please see the attached document from the client and make sure you follow the required structure and guidelines. This is a critical requriement.",
-                      "announce": 0,
-                      "closed": 0
                     },
                     {
                       "title": "Please give us feedback on this challenge!",
@@ -210,7 +178,7 @@
                   "discussions": [
                     {
                       "title": "Welcome!",
-                      "body": "Please read the requirements carefully, we tried to be clear and simple with the specs. However, if you still have questions let me know, I'll be glad to help you.",
+                      "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
                       "announce": 0,
                       "closed": 0
                     }

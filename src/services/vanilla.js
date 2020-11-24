@@ -17,10 +17,15 @@ const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
  * @returns {undefined}
  */
 async function manageVanillaUser (data) {
-  const { challengeId, action, handle: username } = data
+  const { challengeId, action, handle: username, role: projectRole } = data
   logger.info(`Managing users for challengeID=${challengeId} ...`)
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
   const group = groups.length > 0 ? groups[0] : null
+
+  // Only members and copilots will receive notifications
+  const watch = (!projectRole || projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT) ? 1 : 0
+  const follow = 1
+
   if (!group) {
     throw new Error('The group wasn\'t not found by challengeID')
   }
@@ -87,40 +92,18 @@ async function manageVanillaUser (data) {
     await vanillaClient.updateUser(vanillaUser.userID, userData)
   }
 
-  let categories = []
-  const { body: nestedCategories } = await vanillaClient.getCategoriesByParentUrlCode(challengeId)
-  categories = nestedCategories
-
-  // Some group might not have nested categories
-  if (categories.length === 0) {
-    const { body: parentCategory } = await vanillaClient.getCategoryByUrlcode(challengeId)
-    categories.push(parentCategory)
-  }
-
   // Choose action to perform
   switch (action) {
     case constants.USER_ACTIONS.INVITE: {
       await vanillaClient.addUserToGroup(group.groupID, {
-        userID: vanillaUser.userID
+        userID: vanillaUser.userID,
+        watch: watch,
+        follow: follow
       })
       logger.info(`The user '${vanillaUser.name}' was added to the group '${group.name}'`)
-      // if User is added => watch the category
-      for (const category of categories) {
-        await vanillaClient.watchCategory(category.categoryID, vanillaUser.userID, { watched: true })
-        logger.info(`The user ${vanillaUser.name} watches categoryID=${category.categoryID} associated with challenge ${challengeId}`)
-        await vanillaClient.followCategory(category.categoryID, { followed: true, userID: vanillaUser.userID })
-        logger.info(`The user ${vanillaUser.name} follows categoryID=${category.categoryID} associated with challenge ${challengeId}`)
-      }
       break
     }
     case constants.USER_ACTIONS.KICK: {
-      // if User is removed => don't watch the category
-      for (const category of categories) {
-        await vanillaClient.watchCategory(category.categoryID, vanillaUser.userID, { watched: false })
-        logger.info(`The user ${vanillaUser.name} stopped watching categoryID=${category.categoryID} associated with challenge ${challengeId}`)
-        await vanillaClient.followCategory(category.categoryID, { followed: false, userID: vanillaUser.userID })
-        logger.info(`The user ${vanillaUser.name} unfollows categoryID=${category.categoryID} associated with challenge ${challengeId}`)
-      }
       await vanillaClient.removeUserFromGroup(group.groupID, vanillaUser.userID)
       logger.info(`The user '${vanillaUser.name}' was removed from the group '${group.name}'`)
       break
@@ -220,6 +203,7 @@ async function createVanillaGroup (challenge) {
       const groupDescriptionTemplate = _.template(groupTemplate.group.description)
       const { body: group } = await vanillaClient.createGroup({
         name: groupNameTemplate({ challenge }),
+        privacy: groupTemplate.group.privacy,
         type: groupTemplate.group.type,
         description: groupDescriptionTemplate({ challenge }),
         challengeID: `${challenge.id}`,
@@ -247,7 +231,8 @@ async function createVanillaGroup (challenge) {
         name: challenge.name,
         urlcode: `${challenge.id}`,
         parentCategoryID: parentCategory[0].categoryID,
-        displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS
+        displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS,
+        groupID: group.groupID
       })
 
       logger.info(`The '${challengeCategory.name}' category was created`)
@@ -258,7 +243,8 @@ async function createVanillaGroup (challenge) {
           const { body: childCategory } = await vanillaClient.createCategory({
             name: item.name,
             urlcode: `${urlCodeTemplate({ challenge })}`,
-            parentCategoryID: challengeCategory.categoryID
+            parentCategoryID: challengeCategory.categoryID,
+            groupID: group.groupID
           })
           logger.info(`The '${item.name}' category was created`)
           await createDiscussions(group, challenge, item.discussions, childCategory)
@@ -270,7 +256,7 @@ async function createVanillaGroup (challenge) {
       }
 
       for (const member of members) {
-        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: member.handle })
+        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: member.handle, role: member.role })
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
