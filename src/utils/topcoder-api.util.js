@@ -110,11 +110,29 @@ async function getProject (projectId) {
   return reqToAPI('GET', path)
 }
 
+/**
+ * Gets the list of Resource Roles by challengeId
+ */
+async function getAllChallengeRoles (challengeId) {
+  const path = `${config.TOPCODER.API_URL}/v5/resources?challengeId=${challengeId}`
+  return reqToAPI('GET', path)
+}
+
+/**
+ * Gets the list of All Resource Roles
+ */
+async function getAllRoles () {
+  const path = `${config.TOPCODER.API_URL}/v5/resource-roles`
+  return reqToAPI('GET', path)
+}
+
 module.exports = {
   getUserDetailsById,
   getUserDetailsByHandle,
   getChallenge,
   updateChallenge,
   getRoles,
+  getAllRoles,
+  getAllChallengeRoles,
   getProject
 }

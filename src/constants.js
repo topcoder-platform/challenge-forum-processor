@@ -44,6 +44,10 @@ module.exports = {
       COPILOT: 'copilot',
       MANAGER: 'manager',
       CUSTOMER: 'customer'
+    },
+    CHALLENGE_ROLES: {
+      COPILOT: 'Copilot',
+      MANAGER: 'Manager'
     }
   },
   VANILLA: {
