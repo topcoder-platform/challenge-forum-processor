@@ -335,9 +335,10 @@ function shouldWatchCategories (projectRole, challengeRoles) {
     return true
   }
 
-  // Project Copilots / Challenge Copilots
+  // Project Copilots / Challenge Copilots and Submitters
   return (projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
-    (_.isArray(challengeRoles) && _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT))
+    (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
+      _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER)))
   )
 }
 
@@ -353,11 +354,12 @@ function shouldFollowCategories (projectRole, challengeRoles) {
     return true
   }
 
-  // Project Copilots or Managers / Challenge Copilots and Managers
+  // Project Copilots or Managers / Challenge Copilots,  Managers and Submitters
   return projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
     projectRole === constants.TOPCODER.PROJECT_ROLES.MANAGER ||
     (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
-        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.MANAGER))
+        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.MANAGER) ||
+        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER))
     )
 }
 

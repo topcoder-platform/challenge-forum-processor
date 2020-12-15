@@ -47,7 +47,8 @@ module.exports = {
     },
     CHALLENGE_ROLES: {
       COPILOT: 'Copilot',
-      MANAGER: 'Manager'
+      MANAGER: 'Manager',
+      SUBMITTER: 'Submitter'
     }
   },
   VANILLA: {
