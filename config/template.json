@@ -31,7 +31,7 @@
                     },
                     {
                       "title": "Please give us feedback on this challenge!",
-                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.\n\n https://www.surveymonkey.com/r/3SYYTHP?Challenge_ID=<%- challenge.id %>",
                       "announce": 0,
                       "closed": 0
                     }
@@ -74,7 +74,7 @@
                     },
                     {
                       "title": "Please give us feedback on this challenge!",
-                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc. \n\n https://www.surveymonkey.com/r/3SYYTHP?Challenge_ID=<%- challenge.id %>",
                       "announce": 0,
                       "closed": 0
                     }
@@ -119,7 +119,7 @@
                 },
                 {
                   "title": "Please give us feedback on this challenge!",
-                  "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                  "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc. \n\n https://www.surveymonkey.com/r/3SYYTHP?Challenge_ID=<%- challenge.id %>",
                   "announce": 0,
                   "closed": 0
                 },
@@ -166,7 +166,7 @@
                     },
                     {
                       "title": "Please give us feedback on this challenge!",
-                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc.",
+                      "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc. \n\n https://www.surveymonkey.com/r/3SYYTHP?Challenge_ID=<%- challenge.id %>",
                       "announce": 0,
                       "closed": 0
                     }

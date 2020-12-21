@@ -1,4 +1,5 @@
 const config = require('config')
+const _ = require('lodash')
 const util = require('util')
 const constants = require('../../constants')
 const logger = require('../../utils/logger.util')
@@ -6,6 +7,8 @@ const { manageRocketUser } = require('../../services/rokect')
 const { manageVanillaUser } = require('../../services/vanilla')
 const {
   getTopcoderUserHandle: getUserHandle,
+  getAllChallengeRolesForUser,
+  getProjectRoleForUser,
   processPayload
 } = require('./helpers')
 
@@ -34,6 +37,23 @@ function canProcessEvent (payload, topic) {
   return true
 }
 
+async function processPayloadItem (item, topic) {
+  const data = processPayload(item, topic)
+  try {
+    data.handle = data.handle || (await getUserHandle(data.userId))
+    data.projectRole = (await getProjectRoleForUser(data.challengeId, data.userId))
+    data.challengeRoles = (await getAllChallengeRolesForUser(data.challengeId, data.userId))
+  } catch (err) {
+    logger.error(util.inspect(err))
+  }
+  for (const service of services) {
+    await service(data)
+      .catch(err => {
+        logger.error(util.inspect(err))
+      })
+  }
+}
+
 /**
  * Handle a set of messages from the Kafka topic
  * @param {Array} messageSet
@@ -48,19 +68,12 @@ async function handler (messageSet, topic) {
     if (!canProcessEvent(item, topic)) {
       continue
     }
-
-    const data = processPayload(item, topic)
-    try {
-      data.handle = data.handle || (await getUserHandle(data.userId))
-    } catch (err) {
-      logger.error(util.inspect(err))
-      continue
-    }
-    for (const service of services) {
-      await service(data)
-        .catch(err => {
-          logger.error(util.inspect(err))
-        })
+    if (_.isArray(item)) {
+      for (const i of item) {
+        await processPayloadItem(i, topic)
+      }
+    } else {
+      await processPayloadItem(item, topic)
     }
   }
 }

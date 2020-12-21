@@ -11,20 +11,18 @@ const utils = require('../utils/common.util')
 const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
 
 /**
- * Add/Remove a user to/from a category.
- *
+ * Add/Remove a user to/from a group.
  * @param {Object} data the data from message payload
  * @returns {undefined}
  */
 async function manageVanillaUser (data) {
-  const { challengeId, action, handle: username, role: projectRole } = data
-  logger.info(`Managing users for challengeID=${challengeId} ...`)
+  const { challengeId, action, handle: username, projectRole, challengeRoles } = data
+  logger.info(`Managing user for challengeID=${challengeId} [action=${action}, handle=${username}, projectRole=${JSON.stringify(projectRole)}, challengeRoles=${JSON.stringify(challengeRoles)}]...`)
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
   const group = groups.length > 0 ? groups[0] : null
 
-  // Only members and copilots will receive notifications
-  const watch = (!projectRole || projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT) ? 1 : 0
-  const follow = 1
+  const watch = shouldWatchCategories(projectRole, challengeRoles)
+  const follow = shouldFollowCategories(projectRole, challengeRoles)
 
   if (!group) {
     throw new Error('The group wasn\'t not found by challengeID')
@@ -77,7 +75,7 @@ async function manageVanillaUser (data) {
 
     const { body: user } = await vanillaClient.addUser(userData)
     vanillaUser = user
-    logger.info(`New user with UserID=${vanillaUser.userID} was added.`)
+    logger.info(`New user [UserID=${vanillaUser.userID}, Name=${vanillaUser.name}] was added.`)
   } else {
     // Get a full user profile with roles
     const { body: user } = await vanillaClient.getUser(vanillaUser.userID)
@@ -90,6 +88,7 @@ async function manageVanillaUser (data) {
       roleID: [...currentVanillaRoleIDs, ...userTopcoderRoleIDs]
     }
     await vanillaClient.updateUser(vanillaUser.userID, userData)
+    // logger.info(`Roles were synchronized for User [UserID=${vanillaUser.userID}, Name=${vanillaUser.name}].`)
   }
 
   // Choose action to perform
@@ -100,12 +99,12 @@ async function manageVanillaUser (data) {
         watch: watch,
         follow: follow
       })
-      logger.info(`The user '${vanillaUser.name}' was added to the group '${group.name}'`)
+      logger.info(`User [UserID=${vanillaUser.userID}, Name=${vanillaUser.name} was added to Group [GroupID=${group.groupID}, Name=${group.name}, Watch=${watch}, Follow=${follow}]`)
       break
     }
     case constants.USER_ACTIONS.KICK: {
       await vanillaClient.removeUserFromGroup(group.groupID, vanillaUser.userID)
-      logger.info(`The user '${vanillaUser.name}' was removed from the group '${group.name}'`)
+      logger.info(`User [UserID=${vanillaUser.userID}, Name =${vanillaUser.name} was removed from Group [GroupID=${group.groupID}, Name=${group.name}]`)
       break
     }
     default:
@@ -256,7 +255,12 @@ async function createVanillaGroup (challenge) {
       }
 
       for (const member of members) {
-        await manageVanillaUser({ challengeId: challenge.id, action: constants.USER_ACTIONS.INVITE, handle: member.handle, role: member.role })
+        await manageVanillaUser({
+          challengeId: challenge.id,
+          action: constants.USER_ACTIONS.INVITE,
+          handle: member.handle,
+          projectRole: member.role
+        })
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
@@ -317,6 +321,46 @@ async function createDiscussions (group, challenge, templateDiscussions, vanilla
     })
     logger.info(`The '${discussion.title}' discussion/announcement was created`)
   }
+}
+
+/**
+ * Auto-watch categories
+ * @param projectRole string
+ * @param challengeRoles array
+ * @returns {boolean}
+ */
+function shouldWatchCategories (projectRole, challengeRoles) {
+  // New user
+  if (!projectRole && _.isEmpty(challengeRoles)) {
+    return true
+  }
+
+  // Project Copilots / Challenge Copilots and Submitters
+  return (projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
+    (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
+      _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER)))
+  )
+}
+
+/**
+ * Auto-follow categories
+ * @param projectRole string
+ * @param challengeRoles array
+ * @returns {boolean}
+ */
+function shouldFollowCategories (projectRole, challengeRoles) {
+  // New user
+  if (!projectRole && _.isEmpty(challengeRoles)) {
+    return true
+  }
+
+  // Project Copilots or Managers / Challenge Copilots,  Managers and Submitters
+  return projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
+    projectRole === constants.TOPCODER.PROJECT_ROLES.MANAGER ||
+    (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
+        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.MANAGER) ||
+        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER))
+    )
 }
 
 module.exports = {
