@@ -315,7 +315,7 @@ async function createDiscussions (group, challenge, templateDiscussions, vanilla
       name: discussion.title,
       groupID: group.groupID,
       categoryID: vanillaCategory.categoryID,
-      format: constants.VANILLA.DISCUSSION_FORMAT.WYSIWYG,
+      format: constants.VANILLA.DISCUSSION_FORMAT.MARKDOWN,
       closed: discussion.closed,
       pinned: discussion.announce
     })

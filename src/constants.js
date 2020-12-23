@@ -66,12 +66,12 @@ module.exports = {
       'discussions.view': true
     },
     DISCUSSION_FORMAT: {
-      RICH: 'rich',
-      MARKDOWN: 'markdown',
-      TEXT: 'text',
-      TEXTEX: 'textex',
-      WYSIWYG: 'wysiwyg',
-      BBCODE: 'bbcode'
+      RICH: 'Rich',
+      MARKDOWN: 'Markdown',
+      TEXT: 'Text',
+      TEXTEX: 'Textex',
+      WYSIWYG: 'Wysiwyg',
+      BBCODE: 'Bbcode'
     },
     GROUP_PRIVACY: {
       SECRET: 'secret',
