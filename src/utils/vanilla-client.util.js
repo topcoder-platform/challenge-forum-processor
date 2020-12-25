@@ -140,7 +140,7 @@ function getVanillaClient () {
         .send(data)
     },
     removeUserFromGroup: (groupId, userId) => {
-      return request.delete(`${config.VANILLA.API_URL}/groups/${groupId}/members/${userId}`)
+      return request.delete(`${config.VANILLA.API_URL}/groups/${groupId}/member/${userId}`)
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
     }
   }
