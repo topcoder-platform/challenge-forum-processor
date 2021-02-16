@@ -11,16 +11,9 @@ module.exports = {
       CHALLENGE_CREATE_TOPIC: 'challenge.notification.create',
       // For challenge update
       CHALLENGE_UPDATE_TOPIC: 'challenge.notification.update',
-      // For member registrations and de-registrations
-      CHALLENGE_NOTIFICATION_TOPIC: 'challenge.notification.events',
-      // For co-pilots,PMs,etc.
+      // For member registrations and de-registrations, co-pilots,PMs,etc.
       RESOURCE_CREATE_TOPIC: 'challenge.action.resource.create',
       RESOURCE_DELETE_TOPIC: 'challenge.action.resource.delete'
-    },
-    // Values of `type` in payload of challenge.notification.events
-    CHALLENGE_NOTIFICATION_EVENT_TYPES: {
-      USER_REGISTRATION: 'USER_REGISTRATION',
-      USER_UNREGISTRATION: 'USER_UNREGISTRATION'
     }
   },
   TEMPLATES: {
