@@ -22,17 +22,10 @@ if (config.VANILLA_ENABLED) {
   services.push(manageVanillaUser)
 }
 
-function canProcessEvent (payload, topic) {
-  if (topic === constants.KAFKA.TOPICS.CHALLENGE_NOTIFICATION_TOPIC) {
-    const eventTypes = constants.KAFKA.CHALLENGE_NOTIFICATION_EVENT_TYPES
-    const actionMap = {
-      [eventTypes.USER_REGISTRATION]: constants.USER_ACTIONS.INVITE,
-      [eventTypes.USER_UNREGISTRATION]: constants.USER_ACTIONS.KICK
-    }
-    if (!(payload.type in actionMap)) {
-      logger.debug(`Not supported ${payload.type}. Only message types ${JSON.stringify(Object.keys(eventTypes))} are processed from '${topic}'`)
-      return false
-    }
+function canProcessEvent (topic) {
+  if (!_.includes([constants.KAFKA.TOPICS.RESOURCE_CREATE_TOPIC, constants.KAFKA.TOPICS.RESOURCE_DELETE_TOPIC], topic)) {
+    logger.debug('Not supported topic.')
+    return false
   }
   return true
 }
@@ -65,7 +58,7 @@ async function handler (messageSet, topic) {
     return
   }
   for (const item of messageSet) {
-    if (!canProcessEvent(item, topic)) {
+    if (!canProcessEvent(topic)) {
       continue
     }
     if (_.isArray(item)) {

@@ -9,11 +9,6 @@ const topcoderApi = require('../../utils/topcoder-api.util')
  * @param {String} topic
  */
 function processPayload (payload, topic) {
-  const eventTypes = constants.KAFKA.CHALLENGE_NOTIFICATION_EVENT_TYPES
-  const actionMap = {
-    [eventTypes.USER_REGISTRATION]: constants.USER_ACTIONS.INVITE,
-    [eventTypes.USER_UNREGISTRATION]: constants.USER_ACTIONS.KICK
-  }
   switch (topic) {
     case constants.KAFKA.TOPICS.RESOURCE_CREATE_TOPIC:
       return {
@@ -28,20 +23,6 @@ function processPayload (payload, topic) {
         userId: payload.memberId,
         handle: payload.memberHandle,
         action: constants.USER_ACTIONS.KICK
-      }
-    case constants.KAFKA.TOPICS.CHALLENGE_NOTIFICATION_TOPIC:
-      if (payload.detail && payload.detail.challengeId) {
-        // hack due to inconsistent payload from USER_UNREGISTRATION event
-        return {
-          challengeId: payload.detail.challengeId,
-          userId: payload.detail.userId,
-          action: actionMap[payload.type]
-        }
-      }
-      return {
-        challengeId: payload.data.challengeId,
-        userId: payload.data.userId,
-        action: actionMap[payload.type]
       }
     default:
       throw new Error(`Received message from unrecognized '${topic}'`)
