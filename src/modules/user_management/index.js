@@ -4,7 +4,6 @@ const handler = require('./handler')
 
 module.exports = {
   topics: [
-    constants.KAFKA.TOPICS.CHALLENGE_NOTIFICATION_TOPIC,
     constants.KAFKA.TOPICS.RESOURCE_CREATE_TOPIC,
     constants.KAFKA.TOPICS.RESOURCE_DELETE_TOPIC
   ],

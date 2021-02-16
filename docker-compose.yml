@@ -17,4 +17,4 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "challenge.notification.create:1:1,challenge.notification.update:1:1,challenge.notification.events:1:1,challenge.action.resource.create:1:1,challenge.action.resource.delete:1:1"
+      KAFKA_CREATE_TOPICS: "challenge.notification.create:1:1,challenge.notification.update:1:1,challenge.action.resource.create:1:1,challenge.action.resource.delete:1:1"
