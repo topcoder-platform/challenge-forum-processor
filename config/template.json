@@ -14,7 +14,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this forum, thanks!",
+                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
                 "privacy": "secret",
                 "type": "challenge"
               },
@@ -57,7 +57,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
+                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
                 "privacy": "secret",
                 "type": "challenge"
               },
@@ -106,7 +106,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
+                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
                 "privacy": "secret",
                 "type": "challenge"
               },
@@ -149,7 +149,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to Topcoder ${ challenge.track } challenge!\nPlease post your questions in this chat group, thanks!",
+                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
                 "privacy": "secret",
                 "type": "challenge"
               },
