@@ -22,7 +22,6 @@ async function manageVanillaUser (data) {
   const group = groups.length > 0 ? groups[0] : null
 
   const watch = shouldWatchCategories(projectRole, challengeRoles)
-  const follow = shouldFollowCategories(projectRole, challengeRoles)
 
   if (!group) {
     throw new Error('The group wasn\'t not found by challengeID')
@@ -96,10 +95,9 @@ async function manageVanillaUser (data) {
     case constants.USER_ACTIONS.INVITE: {
       await vanillaClient.addUserToGroup(group.groupID, {
         userID: vanillaUser.userID,
-        watch: watch,
-        follow: follow
+        watch: watch
       })
-      logger.info(`User [UserID=${vanillaUser.userID}, Name=${vanillaUser.name} was added to Group [GroupID=${group.groupID}, Name=${group.name}, Watch=${watch}, Follow=${follow}]`)
+      logger.info(`User [UserID=${vanillaUser.userID}, Name=${vanillaUser.name} was added to Group [GroupID=${group.groupID}, Name=${group.name}, Watch=${watch}]`)
       break
     }
     case constants.USER_ACTIONS.KICK: {
@@ -340,27 +338,6 @@ function shouldWatchCategories (projectRole, challengeRoles) {
     (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
       _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER)))
   )
-}
-
-/**
- * Auto-follow categories
- * @param projectRole string
- * @param challengeRoles array
- * @returns {boolean}
- */
-function shouldFollowCategories (projectRole, challengeRoles) {
-  // New user
-  if (!projectRole && _.isEmpty(challengeRoles)) {
-    return true
-  }
-
-  // Project Copilots or Managers / Challenge Copilots,  Managers and Submitters
-  return projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
-    projectRole === constants.TOPCODER.PROJECT_ROLES.MANAGER ||
-    (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
-        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.MANAGER) ||
-        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER))
-    )
 }
 
 module.exports = {
