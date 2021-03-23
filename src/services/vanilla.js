@@ -204,7 +204,8 @@ async function createVanillaGroup (challenge) {
         type: groupTemplate.group.type,
         description: groupDescriptionTemplate({ challenge }),
         challengeID: `${challenge.id}`,
-        challengeUrl: `${challenge.url}`
+        challengeUrl: `${challenge.url}`,
+        archived: true
       })
 
       if (!group.groupID) {
@@ -229,7 +230,8 @@ async function createVanillaGroup (challenge) {
         urlcode: `${challenge.id}`,
         parentCategoryID: parentCategory[0].categoryID,
         displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS,
-        groupID: group.groupID
+        groupID: group.groupID,
+        archived: true
       })
 
       logger.info(`The '${challengeCategory.name}' category was created`)
@@ -241,7 +243,8 @@ async function createVanillaGroup (challenge) {
             name: item.name,
             urlcode: `${urlCodeTemplate({ challenge })}`,
             parentCategoryID: challengeCategory.categoryID,
-            groupID: group.groupID
+            groupID: group.groupID,
+            archived: true
           })
           logger.info(`The '${item.name}' category was created`)
           await createDiscussions(group, challenge, item.discussions, childCategory)
@@ -286,8 +289,25 @@ async function updateVanillaGroup (challenge) {
     throw new Error('Multiple groups were found for this challenge')
   }
 
+  if (challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+    await vanillaClient.unarchiveGroup(groups[0].groupID)
+    logger.info(`The group with groupID=${groups[0].groupID} was unarchived.`)
+  } else if (_.includes([constants.TOPCODER.CHALLENGE_STATUSES.COMPLETED,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_REVIEW,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_SCREENING,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_SUBMISSIONS,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_WINNER_UNRESPONSIVE,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_CLIENT_REQUEST,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_REQUIREMENTS_INFEASIBLE,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_REGISTRATIONS,
+    constants.TOPCODER.CHALLENGE_STATUSES.DELETED], challenge.status)) {
+    await vanillaClient.archiveGroup(groups[0].groupID)
+    logger.info(`The group with groupID=${groups[0].groupID} was archived.`)
+  }
+
   const { body: updatedGroup } = await vanillaClient.updateGroup(groups[0].groupID, { name: challenge.name })
-  logger.info(`The group was updated: ${JSON.stringify(updatedGroup)}`)
+  logger.info(`The group with groupID=${groups[0].groupID} was updated: ${JSON.stringify(updatedGroup)}`)
 
   const { body: groupCategory } = await vanillaClient.getCategoryByUrlcode(`${challenge.id}`)
   if (!groupCategory) {
