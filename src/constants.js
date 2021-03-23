@@ -42,6 +42,21 @@ module.exports = {
       COPILOT: 'Copilot',
       MANAGER: 'Manager',
       SUBMITTER: 'Submitter'
+    },
+    CHALLENGE_STATUSES: {
+      NEW: 'New',
+      DRAFT: 'Draft',
+      CANCELLED: 'Cancelled',
+      ACTIVE: 'Active',
+      COMPLETED: 'Completed',
+      DELETED: 'Deleted',
+      CANCELLED_FAILED_REVIEW: 'Cancelled - Failed Review',
+      CANCELLED_FAILED_SCREENING: 'Cancelled - Failed Screening',
+      CANCELLED_ZERO_SUBMISSIONS: 'Cancelled - Zero Submissions',
+      CANCELLED_WINNER_UNRESPONSIVE: 'Cancelled - Winner Unresponsive',
+      CANCELLED_CLIENT_REQUEST: 'Cancelled - Client Request',
+      CANCELLED_REQUIREMENTS_INFEASIBLE: 'Cancelled - Requirements Infeasible',
+      CANCELLED_ZERO_REGISTRATIONS: 'Cancelled - Zero Registrations'
     }
   },
   VANILLA: {

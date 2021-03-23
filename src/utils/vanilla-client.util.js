@@ -122,6 +122,14 @@ function getVanillaClient () {
         .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
         .send(data)
     },
+    archiveGroup: (groupId) => {
+      return request.put(`${config.VANILLA.API_URL}/groups/${groupId}/archive`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+    },
+    unarchiveGroup: (groupId) => {
+      return request.put(`${config.VANILLA.API_URL}/groups/${groupId}/unarchive`)
+        .query({ access_token: config.VANILLA.ADMIN_ACCESS_TOKEN })
+    },
     searchGroups: (query) => {
       const queryParams = { access_token: config.VANILLA.ADMIN_ACCESS_TOKEN }
       queryParams.challengeID = query
