@@ -14,7 +14,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
@@ -57,7 +57,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
@@ -106,7 +106,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
@@ -149,7 +149,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to ${ challenge.name }.\nPlease post your questions in this forum, thank you!",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
