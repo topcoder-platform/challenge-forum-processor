@@ -60,6 +60,7 @@ module.exports = {
     }
   },
   VANILLA: {
+    DEFAULT_MEMBER_ROLES: ['Vanilla Member'],
     CHALLENGES_FORUM: 'Challenges Forums',
     CATEGORY_DISPLAY_STYLE: {
       CATEGORIES: 'categories',

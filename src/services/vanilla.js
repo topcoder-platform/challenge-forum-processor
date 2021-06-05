@@ -59,7 +59,10 @@ async function manageVanillaUser (data) {
   if (!vanillaUser) {
     logger.info(`The '${username}' user wasn't found in Vanilla`)
 
-    const defaultVanillaRoles = _.filter(allNewVanillaRoles, { type: 'member' })
+    const defaultVanillaRoles = _.filter(allNewVanillaRoles, function (role) {
+      return role.type === 'member' && constants.VANILLA.DEFAULT_MEMBER_ROLES.includes(role.name)
+    })
+
     const defaultVanillaRoleIDs = _.map(defaultVanillaRoles, 'roleID')
 
     const userData = {
