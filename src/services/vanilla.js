@@ -321,7 +321,10 @@ async function updateVanillaGroup (challenge) {
   if (!groupCategoryForEdit) {
     throw new Error('Group category wasn\'t found for this challenge')
   }
+  // Update group's name
   groupCategoryForEdit.name = challenge.name
+  // Delete a category's parent so as not to rebuild the category tree again
+  delete groupCategoryForEdit.parentCategoryID
 
   const { body: updatedGroupCategory } = await vanillaClient.updateCategory(groupCategoryForEdit.categoryID, groupCategoryForEdit)
   logger.info(`The group category was updated: ${JSON.stringify(updatedGroupCategory)}`)
