@@ -41,7 +41,8 @@ module.exports = {
     CHALLENGE_ROLES: {
       COPILOT: 'Copilot',
       MANAGER: 'Manager',
-      SUBMITTER: 'Submitter'
+      SUBMITTER: 'Submitter',
+      CLIENT_MANAGER: 'Client Manager'
     },
     CHALLENGE_STATUSES: {
       NEW: 'New',
