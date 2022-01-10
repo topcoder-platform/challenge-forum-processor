@@ -42,7 +42,7 @@ module.exports = {
       COPILOT: 'Copilot',
       MANAGER: 'Manager',
       SUBMITTER: 'Submitter',
-      CLIENT_MANGER: 'Client Manager'
+      CLIENT_MANAGER: 'Client Manager'
     },
     CHALLENGE_STATUSES: {
       NEW: 'New',
