@@ -362,7 +362,8 @@ function shouldWatchCategories (projectRole, challengeRoles) {
   // Project Copilots / Challenge Copilots and Submitters
   return (projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
     (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
-      _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER)))
+      _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER) ||
+        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.CLIENT_MANGER)))
   )
 }
 
