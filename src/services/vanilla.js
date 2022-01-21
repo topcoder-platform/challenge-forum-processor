@@ -237,10 +237,12 @@ async function createVanillaGroup (challenge) {
         archived: true
       })
 
-      logger.info(`The '${challengeCategory.name}' category was created`)
+      logger.info(`The '${challengeCategory.name}' category was created.`)
 
+      const isSelfService = challenge.legacy.selfService;
       if (groupTemplate.categories) {
-        for (const item of groupTemplate.categories) {
+        const categories = _.filter(groupTemplate.categories,  ['selfservice', isSelfService] )
+        for (const item of categories) {
           const urlCodeTemplate = _.template(item.urlcode)
           const { body: childCategory } = await vanillaClient.createCategory({
             name: item.name,
@@ -255,7 +257,8 @@ async function createVanillaGroup (challenge) {
       }
 
       if (groupTemplate.discussions) {
-        await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory)
+        const groupDiscussions = _.filter(groupTemplate.discussions, ['selfservice', isSelfService] )
+        await createDiscussions(group, challenge, groupDiscussions, challengeCategory)
       }
 
       for (const member of members) {
