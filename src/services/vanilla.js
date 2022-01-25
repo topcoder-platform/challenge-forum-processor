@@ -199,8 +199,11 @@ async function createVanillaGroup (challenge) {
 
       logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
 
+      const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
       const groupNameTemplate = _.template(groupTemplate.group.name)
-      const groupDescriptionTemplate = _.template(groupTemplate.group.description)
+      const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
+        : _.template(groupTemplate.group.description)
+
       const { body: group } = await vanillaClient.createGroup({
         name: groupNameTemplate({ challenge }),
         privacy: groupTemplate.group.privacy,
@@ -239,9 +242,8 @@ async function createVanillaGroup (challenge) {
 
       logger.info(`The '${challengeCategory.name}' category was created.`)
 
-      const isSelfService = challenge.legacy.selfService;
       if (groupTemplate.categories) {
-        const categories = _.filter(groupTemplate.categories,  ['selfservice', isSelfService] )
+        const categories = _.filter(groupTemplate.categories, ['selfService', isSelfService])
         for (const item of categories) {
           const urlCodeTemplate = _.template(item.urlcode)
           const { body: childCategory } = await vanillaClient.createCategory({
@@ -257,7 +259,7 @@ async function createVanillaGroup (challenge) {
       }
 
       if (groupTemplate.discussions) {
-        const groupDiscussions = _.filter(groupTemplate.discussions, ['selfservice', isSelfService] )
+        const groupDiscussions = _.filter(groupTemplate.discussions, ['selfService', isSelfService])
         await createDiscussions(group, challenge, groupDiscussions, challengeCategory)
       }
 
