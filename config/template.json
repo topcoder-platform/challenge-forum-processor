@@ -14,7 +14,7 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "description": "Welcome to ${ challenge.name } Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
