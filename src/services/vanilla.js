@@ -140,7 +140,7 @@ async function addTopcoderRoles (allVanillaRoles, topcoderRoleNames) {
  * @param {Object} challenge the challenge data
  */
 async function createVanillaGroup (challenge) {
-  logger.info(`The challenge with challengeID=${challenge.id}:`)
+  logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy.selfService}:`)
   const { text: challengeDetailsData, status: responseStatus } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
 
@@ -161,6 +161,12 @@ async function createVanillaGroup (challenge) {
 
   if (challengeDiscussions.length > 1) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
+  }
+
+  const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
+  if(isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+    logger.info(`The forums are created only for self-service challenges with the Active status.`)
+    return
   }
 
   const { body: project } = await topcoderApi.getProject(challenge.projectId)
@@ -199,7 +205,6 @@ async function createVanillaGroup (challenge) {
 
       logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
 
-      const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
       const groupNameTemplate = _.template(groupTemplate.group.name)
       const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
         : _.template(groupTemplate.group.description)
@@ -286,11 +291,18 @@ async function createVanillaGroup (challenge) {
  * @param {Object} challenge the challenge data
  */
 async function updateVanillaGroup (challenge) {
-  logger.info(`The challenge with challengeID=${challenge.id}:`)
+  logger.info(`Update: challengeID=${challenge.id}, status=${challenge.status}, selService=${challenge.legacy.selfService}:`)
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
   if (groups.length === 0) {
-    throw new Error('The group wasn\'t found for this challenge')
+    const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
+    // Create the forums for self-service challenges with the Active status
+    if(isSelfService && challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+      await createVanillaGroup(challenge)
+      return
+    } else {
+      throw new Error('The group wasn\'t found for this challenge')
+    }
   }
 
   if (groups.length > 1) {
