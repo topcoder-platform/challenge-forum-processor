@@ -15,13 +15,14 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "selfServiceDescription": "Welcome to ${ challenge.name } Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
               "categories": [
                 {
                   "name": "Code Documents",
-                  "selfservice": false,
+                  "selfService": false,
                   "urlcode": "${ challenge.id }-documents",
                   "discussions": [
                     {
@@ -40,7 +41,7 @@
                 },
                 {
                   "name": "Code Questions",
-                  "selfservice": false,
+                  "selfService": false,
                   "urlcode": "${ challenge.id }-questions",
                   "discussions": [
                     {
@@ -53,7 +54,7 @@
                 },
                 {
                   "name": "General Questions",
-                  "selfservice": true,
+                  "selfService": true,
                   "urlcode": "${ challenge.id }-questions",
                   "discussions": [
                   ]
@@ -67,13 +68,14 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "selfServiceDescription": "Welcome to ${ challenge.name } Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
               "categories": [
                 {
                   "name": "Code Documents",
-                  "selfservice": false,
+                  "selfService": false,
                   "urlcode": "${ challenge.id }-documents",
                   "discussions": [
                     {
@@ -92,7 +94,7 @@
                 },
                 {
                   "name": "Code Questions",
-                  "selfservice": false,
+                  "selfService": false,
                   "urlcode": "${ challenge.id }-questions",
                   "discussions": [
                     {
@@ -105,7 +107,7 @@
                 },
                 {
                   "name": "General Questions",
-                  "selfservice": true,
+                  "selfService": true,
                   "urlcode": "${ challenge.id }-questions",
                   "discussions": [
                   ]
@@ -124,7 +126,8 @@
               "urlcode": "$ { challenge.id }",
               "group": {
                 "name": "${ challenge.name }",
-                "description": "Welcome to the challenge forum.",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "selfServiceDescription": "Welcome to ${ challenge.name } Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
@@ -134,28 +137,28 @@
                   "body": "Spec Review Discussion",
                   "announce": 0,
                   "closed": 0,
-                  "selfservice": false
+                  "selfService": false
                 },
                 {
                   "title": "Please give us feedback on this challenge!",
                   "body": "Hi Competitors,\n\nAt topcoder, we are always trying to continuously improve how we are running competitions and tasks for our competitors. Part of this involves getting feedback from you on how well our tasks and challenges are being managed.\n\nPlease take 2-3 minutes to fill out this survey. The results will be used to identify areas of improvement, follow on training, procedural changes, etc. \n\n https://www.surveymonkey.com/r/3SYYTHP?Challenge_ID=<%- challenge.id %>",
                   "announce": 0,
                   "closed": 0,
-                  "selfservice": false
+                  "selfService": false
                 },
                 {
                   "title": "Welcome!",
                   "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
                   "announce": 0,
                   "closed": 0,
-                  "selfservice": false
+                  "selfService": false
                 },
                 {
                   "title": "Challenge Overview",
                   "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
                   "announce": 1,
                   "closed": 1,
-                  "selfservice": false
+                  "selfService": false
                 }
               ]
             }
@@ -172,13 +175,14 @@
               "group": {
                 "name": "${ challenge.name }",
                 "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "selfServiceDescription": "Welcome to ${ challenge.name } Forum.",
                 "privacy": "secret",
                 "type": "challenge"
               },
               "categories": [
                 {
                   "name": "Code Documents",
-                  "selfservice": false,
+                  "selfService": false,
                   "urlcode": "${ challenge.id }-documents",
                   "discussions": [
                     {
@@ -197,7 +201,7 @@
                 },
                 {
                   "name": "Code Questions",
-                  "selfservice": false,
+                  "selfService": false,
                   "urlcode": "${ challenge.id }-questions",
                   "discussions": [
                     {
@@ -210,7 +214,7 @@
                 },
                 {
                   "name": "General Questions",
-                  "selfservice": true,
+                  "selfService": true,
                   "urlcode": "${ challenge.id }-questions",
                   "discussions": [
                   ]
