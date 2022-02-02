@@ -140,7 +140,7 @@ async function addTopcoderRoles (allVanillaRoles, topcoderRoleNames) {
  * @param {Object} challenge the challenge data
  */
 async function createVanillaGroup (challenge) {
-  logger.info(`The challenge with challengeID=${challenge.id}:`)
+  logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy.selfService}:`)
   const { text: challengeDetailsData, status: responseStatus } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
 
@@ -161,6 +161,12 @@ async function createVanillaGroup (challenge) {
 
   if (challengeDiscussions.length > 1) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
+  }
+
+  const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
+  if(isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+    logger.info(`The forums are created only for self-service challenges with the Active status.`)
+    return
   }
 
   const { body: project } = await topcoderApi.getProject(challenge.projectId)
@@ -200,7 +206,9 @@ async function createVanillaGroup (challenge) {
       logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
 
       const groupNameTemplate = _.template(groupTemplate.group.name)
-      const groupDescriptionTemplate = _.template(groupTemplate.group.description)
+      const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
+        : _.template(groupTemplate.group.description)
+
       const { body: group } = await vanillaClient.createGroup({
         name: groupNameTemplate({ challenge }),
         privacy: groupTemplate.group.privacy,
@@ -237,10 +245,11 @@ async function createVanillaGroup (challenge) {
         archived: true
       })
 
-      logger.info(`The '${challengeCategory.name}' category was created`)
+      logger.info(`The '${challengeCategory.name}' category was created.`)
 
       if (groupTemplate.categories) {
-        for (const item of groupTemplate.categories) {
+        const categories = _.filter(groupTemplate.categories, ['selfService', isSelfService])
+        for (const item of categories) {
           const urlCodeTemplate = _.template(item.urlcode)
           const { body: childCategory } = await vanillaClient.createCategory({
             name: item.name,
@@ -255,7 +264,8 @@ async function createVanillaGroup (challenge) {
       }
 
       if (groupTemplate.discussions) {
-        await createDiscussions(group, challenge, groupTemplate.discussions, challengeCategory)
+        const groupDiscussions = _.filter(groupTemplate.discussions, ['selfService', isSelfService])
+        await createDiscussions(group, challenge, groupDiscussions, challengeCategory)
       }
 
       for (const member of members) {
@@ -281,11 +291,18 @@ async function createVanillaGroup (challenge) {
  * @param {Object} challenge the challenge data
  */
 async function updateVanillaGroup (challenge) {
-  logger.info(`The challenge with challengeID=${challenge.id}:`)
+  logger.info(`Update: challengeID=${challenge.id}, status=${challenge.status}, selService=${challenge.legacy.selfService}:`)
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
   if (groups.length === 0) {
-    throw new Error('The group wasn\'t found for this challenge')
+    const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
+    // Create the forums for self-service challenges with the Active status
+    if(isSelfService && challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+      await createVanillaGroup(challenge)
+      return
+    } else {
+      throw new Error('The group wasn\'t found for this challenge')
+    }
   }
 
   if (groups.length > 1) {
@@ -321,7 +338,10 @@ async function updateVanillaGroup (challenge) {
   if (!groupCategoryForEdit) {
     throw new Error('Group category wasn\'t found for this challenge')
   }
+  // Update group's name
   groupCategoryForEdit.name = challenge.name
+  // Delete a category's parent so as not to rebuild the category tree again
+  delete groupCategoryForEdit.parentCategoryID
 
   const { body: updatedGroupCategory } = await vanillaClient.updateCategory(groupCategoryForEdit.categoryID, groupCategoryForEdit)
   logger.info(`The group category was updated: ${JSON.stringify(updatedGroupCategory)}`)
@@ -359,7 +379,8 @@ function shouldWatchCategories (projectRole, challengeRoles) {
   // Project Copilots / Challenge Copilots and Submitters
   return (projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
     (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
-      _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER)))
+      _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER) ||
+        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.CLIENT_MANAGER)))
   )
 }
 
