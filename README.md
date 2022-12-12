@@ -126,48 +126,4 @@ $ npm run lint
 $ npm run lint:fix
 ```
 
-## CI/CD (For auto-deployment from Gitlab to Heroku)
-
-Define the following environment variables in the GitLab CI/CD section:
-
-- `HEROKU_APP_NAME`: Name of the Heroku app to which deployment is to be made
-- `HEROKU_API_KEY`: API Key associated with the account owning the Heroku app
-
-All changes to `master` branch will be pushed to the Heroku app automatically.
-
-## Heroku Configuration
-
-Install Heroku CLI. Instructions [here](https://devcenter.heroku.com/articles/heroku-cli).
-
-Then, set the environment variables using the following commands, changing the values as necessary:
-
-```bash
-# Set the Kafka client certificate and client key
-# Replace ./config/kafka_client.cer and ./config/kafka_client.key with the path to the certificate and key
-$ heroku config:set -a <app_name> \
-  KAFKA_CLIENT_CERT="$(cat ./config/kafka_client.cer)" \
-  KAFKA_CLIENT_CERT_KEY="$(cat ./config/kafka_client.key)"
-
-# Set the other environment variables
-$ heroku config:set -a <app_name> \
-  TOPCODER_AUTH0_PROXY_SERVER_URL="<value>" \
-  TOPCODER_AUTH0_URL="<value>" \
-  TOPCODER_API_URL="<value>" \
-  TOPCODER_ROOT_URL="<value>" \
-  KAFKA_URL="<value>" \
-  ROCKETCHAT_PROTOCOL="<value>" \
-  ROCKETCHAT_HOST="<value>" \
-  ROCKETCHAT_PORT="<value>" \
-  ROCKETCHAT_USERNAME="<value>" \
-  ROCKETCHAT_PASSWORD="<value>" \
-  VANILLA_API_URL="<value>" \
-  VANILLA_ADMIN_ACCESS_TOKEN="<value>"
-```
-
-Use the following command to turn on the worker dyno and disable the web dyno:
-
-```bash
-$ heroku ps:scale -a <app_name> worker=1 web=0
-```
-
-The free dyno is generally put to sleep after 30 seconds of inactivity, so it's recommended to use a paid dyno.
+Commit to force redeploy
