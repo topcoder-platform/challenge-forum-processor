@@ -204,14 +204,14 @@ async function createVanillaGroup (challenge) {
       }
 
       logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
-
-      const groupNameTemplate = _.template(groupTemplate.group.name)
-      const shortGroupName = groupNameTemplate.slice(0,config.FORUM_TITLE_LENGTH_LIMIT);
+      
+      const shortGroupName = groupTemplate.group.name.slice(0,config.FORUM_TITLE_LENGTH_LIMIT);
+      const groupNameTemplate = _.template(shortGroupName)
       const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
         : _.template(groupTemplate.group.description)
 
       const { body: group } = await vanillaClient.createGroup({
-        name: shortGroupName({ challenge }),
+        name: groupNameTemplate({ challenge }),
         privacy: groupTemplate.group.privacy,
         type: groupTemplate.group.type,
         description: groupDescriptionTemplate({ challenge }),
