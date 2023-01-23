@@ -210,7 +210,7 @@ async function createVanillaGroup (challenge) {
         : _.template(groupTemplate.group.description)
 
       const { body: group } = await vanillaClient.createGroup({
-        name: groupNameTemplate({ challengeDetailsDiscussion }),
+        name: groupNameTemplate({ challengeDetailsDiscussion }).slice(0,config.FORUM_TITLE_LENGTH_LIMIT),
         privacy: groupTemplate.group.privacy,
         type: groupTemplate.group.type,
         description: groupDescriptionTemplate({ challenge }),
