@@ -51,5 +51,4 @@ module.exports = {
   TEMPLATES: {
     TEMPLATE_FILE_PATH: "./../../config/template.json",
   },
-  FORUM_TITLE_LENGTH_LIMIT: process.env.FORUM_TITLE_LENGTH_LIMIT || 90,
 };
