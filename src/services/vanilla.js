@@ -242,7 +242,7 @@ async function createVanillaGroup (challenge) {
       logger.info(`The '${challengeCategory.name}' category was created.`)
 
       if (groupTemplate.categories) {
-        const categories = groupTemplate.categories;
+        const categories = groupTemplate.categories
         for (const item of categories) {
           const urlCodeTemplate = _.template(item.urlcode)
           const { body: childCategory } = await vanillaClient.createCategory({
@@ -258,7 +258,7 @@ async function createVanillaGroup (challenge) {
       }
 
       if (groupTemplate.discussions) {
-        const groupDiscussions = groupTemplate.discussions;
+        const groupDiscussions = groupTemplate.discussions
         await createDiscussions(group, challenge, groupDiscussions, challengeCategory)
       }
 
