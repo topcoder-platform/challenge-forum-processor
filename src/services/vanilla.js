@@ -289,8 +289,7 @@ async function updateVanillaGroup (challenge) {
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
   if (groups.length === 0) {
-    //const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
-    // Create the forums for self-service challenges with the Active status
+    // Create the forums for all challenges with the Active status
     if(challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
       await createVanillaGroup(challenge)
       return
