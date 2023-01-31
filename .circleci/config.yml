@@ -68,6 +68,7 @@ workflows:
             branches:
               only:
                 - develop
+                - update/PLAT-2021
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.
