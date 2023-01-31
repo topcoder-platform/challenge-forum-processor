@@ -214,7 +214,7 @@ async function createVanillaGroup (challenge) {
         archived: true
       })
 
-      logger.info("Logging the name:"+ groupNameTemplate({ challenge: challengeDetailsDiscussion }).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({ challenge: challengeDetailsDiscussion }))
+      console.log("Name:"+ groupNameTemplate({ challenge: challengeDetailsDiscussion }).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({ challenge: challengeDetailsDiscussion }))
       
       if (!group.groupID) {
         throw Error('Couldn\'t create a group', JSON.stringify(group))
