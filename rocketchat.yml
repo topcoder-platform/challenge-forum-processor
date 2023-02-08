@@ -13,17 +13,19 @@ services:
         done; (exit $$s)"
     restart: unless-stopped
     environment:
-      - PORT=3000
-      - ROOT_URL=http://localhost:3000
+      - PORT=3001
+      - ROOT_URL=http://localhost:3001
       - MONGO_URL=mongodb://mongo:27017/rocketchat
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local
       - ADMIN_USERNAME=rocket
       - ADMIN_PASS=rocket
       - ADMIN_EMAIL=rocket@topcoder.com
+      - ROCKETCHAT_USER=rocket
+      - ROCKETCHAT_PASSWORD=rocket
     depends_on:
       - mongo
     ports:
-      - 3000:3000
+      - 3001:3000
 
   mongo:
     image: mongo

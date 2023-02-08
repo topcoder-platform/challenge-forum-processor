@@ -1,7 +1,9 @@
 const config = require('config')
 const RocketChat = require('rocketchat-api')
 const logger = require('../utils/logger.util')
-
+console.log(config.ROCKETCHAT.PROTOCOL,
+  config.ROCKETCHAT.HOST,
+  config.ROCKETCHAT.PORT)
 // Rocket chat client
 const rocketChatClient = new RocketChat(
   config.ROCKETCHAT.PROTOCOL,
@@ -13,6 +15,7 @@ const rocketChatClient = new RocketChat(
  * Initialize the RocketChat client
  */
 async function initializeRocketClient () {
+  console.log(config.ROCKETCHAT.USERNAME,config.ROCKETCHAT.PASSWORD)
   try {
     await rocketChatClient.login(
       config.ROCKETCHAT.USERNAME,

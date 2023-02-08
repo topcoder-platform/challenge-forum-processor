@@ -54,7 +54,7 @@ async function processPayloadItem (item, topic) {
  */
 async function handler (messageSet, topic) {
   if (services.length === 0) {
-    logger.warn('No enabled services to handle messages')
+    logger.warn('3 No enabled services to handle messages')
     return
   }
   for (const item of messageSet) {

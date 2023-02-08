@@ -143,6 +143,7 @@ async function createVanillaGroup (challenge) {
   logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy.selfService}:`)
   const { text: challengeDetailsData, status: responseStatus } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
+  console.log(challengeDetails)
 
   if (responseStatus !== 200) {
     throw new Error(`Couldn't load challenge data from Topcoder API: ${challengeDetails}`)
@@ -192,10 +193,10 @@ async function createVanillaGroup (challenge) {
         continue
       }
 
-      const { body: groups } = await vanillaClient.searchGroups(challenge.id)
-      if (groups.length > 0) {
-        throw new Error('The group has been created for this challenge')
-      }
+      // const { body: groups } = await vanillaClient.searchGroups(challenge.id)
+      // if (groups.length > 0) {
+      //   throw new Error('The group has been created for this challenge')
+      // }
 
       logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
 

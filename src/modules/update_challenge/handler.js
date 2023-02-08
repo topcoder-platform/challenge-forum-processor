@@ -17,7 +17,7 @@ if (config.VANILLA_ENABLED) {
  */
 async function handler (messageSet, topic) {
   if (services.length === 0) {
-    logger.warn('No enabled services to handle messages')
+    logger.warn('2 No enabled services to handle messages')
     return
   }
   for (const item of messageSet) {

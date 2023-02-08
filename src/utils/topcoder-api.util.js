@@ -35,7 +35,7 @@ async function getM2MToken () {
 async function reqToAPI (reqType, path, reqBody) {
   const token = await getM2MToken()
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {}
-
+  console.log(token)
   const validReqTypes = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE']
   const hasBody = ['POST', 'PUT', 'PATCH']
 
@@ -48,10 +48,12 @@ async function reqToAPI (reqType, path, reqBody) {
     return reqMethod(path)
       .set(authHeader)
       .set('Content-Type', 'application/json')
+      .disableTLSCerts()
   } else {
     return reqMethod(path)
       .set(authHeader)
       .set('Content-Type', 'application/json')
+      .disableTLSCerts()
       .send(reqBody)
   }
 }
