@@ -214,8 +214,6 @@ async function createVanillaGroup (challenge) {
         challengeUrl: `${challenge.url}`,
         archived: true
       })
-
-      console.log(`Name: '${challengeDetailsDiscussion}'`)
       
       if (!group.groupID) {
         throw Error('Couldn\'t create a group', JSON.stringify(group))
