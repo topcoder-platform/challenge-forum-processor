@@ -163,12 +163,6 @@ async function createVanillaGroup (challenge) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
   }
 
-  const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
-  if(isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
-    logger.info(`The forums are created only for self-service challenges with the Active status.`)
-    return
-  }
-
   const { body: project } = await topcoderApi.getProject(challenge.projectId)
   const allProjectRoles = _.values(constants.TOPCODER.PROJECT_ROLES)
   const members = _.filter(project.members, member => {
@@ -209,8 +203,10 @@ async function createVanillaGroup (challenge) {
       const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
         : _.template(groupTemplate.group.description)
 
+      const shorterGroupName = groupNameTemplate({ challenge: challengeDetailsDiscussion }).substring(0,config.FORUM_TITLE_LENGTH_LIMIT);
+
       const { body: group } = await vanillaClient.createGroup({
-        name: groupNameTemplate({ challenge }),
+        name: groupNameTemplate({ challenge: challengeDetailsDiscussion }).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({ challenge: challengeDetailsDiscussion }),
         privacy: groupTemplate.group.privacy,
         type: groupTemplate.group.type,
         description: groupDescriptionTemplate({ challenge }),
@@ -248,7 +244,7 @@ async function createVanillaGroup (challenge) {
       logger.info(`The '${challengeCategory.name}' category was created.`)
 
       if (groupTemplate.categories) {
-        const categories = _.filter(groupTemplate.categories, ['selfService', isSelfService])
+        const categories = groupTemplate.categories
         for (const item of categories) {
           const urlCodeTemplate = _.template(item.urlcode)
           const { body: childCategory } = await vanillaClient.createCategory({
@@ -264,7 +260,7 @@ async function createVanillaGroup (challenge) {
       }
 
       if (groupTemplate.discussions) {
-        const groupDiscussions = _.filter(groupTemplate.discussions, ['selfService', isSelfService])
+        const groupDiscussions = groupTemplate.discussions
         await createDiscussions(group, challenge, groupDiscussions, challengeCategory)
       }
 
@@ -295,9 +291,8 @@ async function updateVanillaGroup (challenge) {
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
   if (groups.length === 0) {
-    const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
-    // Create the forums for self-service challenges with the Active status
-    if(isSelfService && challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+    // Create the forums for all challenges with the Active status
+    if(challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
       await createVanillaGroup(challenge)
       return
     } else {
