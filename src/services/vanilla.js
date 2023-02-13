@@ -321,7 +321,8 @@ async function updateVanillaGroup (challenge) {
     logger.info(`The group with groupID=${groups[0].groupID} was archived.`)
   }
 
-  const { body: updatedGroup } = await vanillaClient.updateGroup(groups[0].groupID, { name: challenge.name })
+  const shorterName = challenge.name.substring(0,config.FORUM_TITLE_LENGTH_LIMIT)
+  const { body: updatedGroup } = await vanillaClient.updateGroup(groups[0].groupID, { name: shorterName })
   logger.info(`The group with groupID=${groups[0].groupID} was updated: ${JSON.stringify(updatedGroup)}`)
 
   const { body: groupCategory } = await vanillaClient.getCategoryByUrlcode(`${challenge.id}`)
