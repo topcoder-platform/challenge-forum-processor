@@ -202,6 +202,7 @@ async function createVanillaGroup (challenge) {
       const groupNameTemplate = _.template(groupTemplate.group.name)
       const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
         : _.template(groupTemplate.group.description)
+
       const shorterGroupName = groupNameTemplate({ challenge: challengeDetailsDiscussion }).substring(0,config.FORUM_TITLE_LENGTH_LIMIT);
 
       const { body: group } = await vanillaClient.createGroup({
