@@ -163,6 +163,12 @@ async function createVanillaGroup (challenge) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
   }
 
+  const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
+  if(isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+    logger.info(`The forums are created only for the active self-service challenges.`)
+    return
+  }
+
   const { body: project } = await topcoderApi.getProject(challenge.projectId)
   const allProjectRoles = _.values(constants.TOPCODER.PROJECT_ROLES)
   const members = _.filter(project.members, member => {
