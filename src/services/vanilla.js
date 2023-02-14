@@ -211,7 +211,7 @@ async function createVanillaGroup (challenge) {
       const shorterGroupName = groupNameTemplate({ challenge: challengeDetailsDiscussion }).substring(0,config.FORUM_TITLE_LENGTH_LIMIT)
 
       const { body: group } = await vanillaClient.createGroup({
-        name: groupNameTemplate({ challenge }),
+        name: groupNameTemplate({ challenge: challengeDetailsDiscussion }).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({ challenge: challengeDetailsDiscussion }),
         privacy: groupTemplate.group.privacy,
         type: groupTemplate.group.type,
         description: groupDescriptionTemplate({ challenge }),
@@ -235,9 +235,7 @@ async function createVanillaGroup (challenge) {
       if (parentCategory.length > 1) {
         throw new Error(`The multiple categories with the '${parentCategoryName}' name were found in Vanilla`)
       }
-
-      const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
-      
+            
       // Create the root challenge category
       const { body: challengeCategory } = await vanillaClient.createCategory({
         name: challenge.name,
@@ -298,9 +296,8 @@ async function updateVanillaGroup (challenge) {
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
   if (groups.length === 0) {
-    const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
-    // Create the forums for self-service challenges with the Active status
-    if(isSelfService && challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+    // Create the forums for all challenges with the Active status
+    if(challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
       await createVanillaGroup(challenge)
       return
     } else {
