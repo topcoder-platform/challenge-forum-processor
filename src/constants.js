@@ -58,11 +58,17 @@ module.exports = {
       CANCELLED_CLIENT_REQUEST: 'Cancelled - Client Request',
       CANCELLED_REQUIREMENTS_INFEASIBLE: 'Cancelled - Requirements Infeasible',
       CANCELLED_ZERO_REGISTRATIONS: 'Cancelled - Zero Registrations'
+    },
+    CHALLENGE_TAGS: {
+      MM: 'Marathon Match',
+      RDM: 'Rapid Development Match'
     }
   },
   VANILLA: {
     DEFAULT_MEMBER_ROLES: ['Vanilla Member'],
     CHALLENGES_FORUM: 'Challenges Forums',
+    MMS_FORUM: 'Marathon Matches (MMS)',
+    RDMS_FORUM: 'Rapid Development Matches (RDMS)',
     CATEGORY_DISPLAY_STYLE: {
       CATEGORIES: 'categories',
       DISCUSSIONS: 'discussions',

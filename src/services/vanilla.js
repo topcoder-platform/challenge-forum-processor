@@ -139,8 +139,8 @@ async function addTopcoderRoles (allVanillaRoles, topcoderRoleNames) {
  *
  * @param {Object} challenge the challenge data
  */
-async function createVanillaGroup (challenge) {
-  logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy.selfService}:`)
+async function createVanillaEntities (challenge) {
+  logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy?challenge.legacy.selfService: null}:`)
   const { text: challengeDetailsData, status: responseStatus } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
 
@@ -163,7 +163,7 @@ async function createVanillaGroup (challenge) {
     throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
   }
 
-  const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
+  const isSelfService = challenge.legacy && challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
   if(isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
     logger.info(`The forums are created only for the active self-service challenges.`)
     return
@@ -175,12 +175,28 @@ async function createVanillaGroup (challenge) {
     return _.includes(allProjectRoles, member.role)
   })
 
-  const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
-  if (!challengesForums) {
-    throw new Error(`The '${constants.VANILLA.CHALLENGES_FORUM}' category wasn't found in the template json file`)
+  const isMM = challengeDetails.tags &&  _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.MM);
+  const isRDM = challengeDetails.tags &&  _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.RDM);
+
+  let vanillaForumsName;
+  if (isMM) {
+    vanillaForumsName = constants.VANILLA.MMS_FORUM;
+  } else if (isRDM) {
+    vanillaForumsName = constants.VANILLA.RDMS_FORUM;
+  } else {
+    vanillaForumsName = constants.VANILLA.CHALLENGES_FORUM;
   }
 
-  const forumTemplate = _.find(challengesForums[0].categories, { categories: [{ track: `${challenge.track}` }] })
+  const isRegular = !(isMM || isRDM)
+  const archived = isRegular;
+
+  let forums = _.filter(template.categories, ['name', vanillaForumsName])
+
+  if (!forums) {
+    throw new Error(`The '${vanillaForumsName}' category wasn't found in the template json file`)
+  }
+
+  const forumTemplate = _.find(forums[0].categories, { categories: [{ track: `${challenge.track}` }] })
   if (!forumTemplate) {
     throw new Error(`The category template for the '${challenge.track}' track wasn't found in the template json file`)
   }
@@ -205,45 +221,46 @@ async function createVanillaGroup (challenge) {
 
       logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
 
-      const groupNameTemplate = _.template(groupTemplate.group.name)
-      const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
-        : _.template(groupTemplate.group.description)
-      const shorterGroupName = groupNameTemplate({ challenge: challengeDetailsDiscussion }).substring(0,config.FORUM_TITLE_LENGTH_LIMIT)
+      let group;
 
-      const { body: group } = await vanillaClient.createGroup({
-        name: groupNameTemplate({ challenge: challengeDetailsDiscussion }).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({ challenge: challengeDetailsDiscussion }),
-        privacy: groupTemplate.group.privacy,
-        type: groupTemplate.group.type,
-        description: groupDescriptionTemplate({ challenge }),
-        challengeID: `${challenge.id}`,
-        challengeUrl: `${challenge.url}`,
-        archived: true
-      })
+      // Create a group for regular challenges
+      if (isRegular) {
+        const groupNameTemplate = _.template(groupTemplate.group.name)
+        const groupDescriptionTemplate = challenge.legacy && challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
+            : _.template(groupTemplate.group.description)
+        const shorterGroupName = groupNameTemplate({challenge: challengeDetailsDiscussion}).substring(0, config.FORUM_TITLE_LENGTH_LIMIT)
 
-      if (!group.groupID) {
-        throw Error('Couldn\'t create a group', JSON.stringify(group))
+        const body = await vanillaClient.createGroup({
+          name: groupNameTemplate({challenge: challengeDetailsDiscussion}).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({challenge: challengeDetailsDiscussion}),
+          privacy: groupTemplate.group.privacy,
+          type: groupTemplate.group.type,
+          description: groupDescriptionTemplate({challenge}),
+          challengeID: `${challenge.id}`,
+          challengeUrl: `${challenge.url}`,
+          archived: archived
+        })
+
+        group = body;
+        if (!group.groupID) {
+          throw Error('Couldn\'t create a group', JSON.stringify(group))
+        }
+
+        logger.info(`The group with groupID=${group.groupID} was created`)
       }
 
-      logger.info(`The group with groupID=${group.groupID} was created`)
-
-      const parentCategoryName = forumTemplate.name
-      const { body: parentCategory } = await vanillaClient.searchCategories(parentCategoryName)
-      if (parentCategory.length === 0) {
+      const parentCategoryName = forumTemplate.urlcode
+      const {body: parentCategory} = await vanillaClient.getCategoryByUrlcode(parentCategoryName)
+      if (!parentCategory.categoryID) {
         throw new Error(`The '${parentCategoryName}' category wasn't found in Vanilla`)
       }
-
-      if (parentCategory.length > 1) {
-        throw new Error(`The multiple categories with the '${parentCategoryName}' name were found in Vanilla`)
-      }
-            
       // Create the root challenge category
       const { body: challengeCategory } = await vanillaClient.createCategory({
         name: challenge.name,
         urlcode: `${challenge.id}`,
-        parentCategoryID: parentCategory[0].categoryID,
+        parentCategoryID: parentCategory.categoryID,
         displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS,
-        groupID: group.groupID,
-        archived: true
+        groupID: group? group.groupID: null,
+        archived: archived
       })
 
       logger.info(`The '${challengeCategory.name}' category was created.`)
@@ -256,8 +273,8 @@ async function createVanillaGroup (challenge) {
             name: item.name,
             urlcode: `${urlCodeTemplate({ challenge })}`,
             parentCategoryID: challengeCategory.categoryID,
-            groupID: group.groupID,
-            archived: true
+            groupID: group? group.groupID: null,
+            archived: archived
           })
           logger.info(`The '${item.name}' category was created`)
           await createDiscussions(group, challenge, item.discussions, childCategory)
@@ -269,13 +286,16 @@ async function createVanillaGroup (challenge) {
         await createDiscussions(group, challenge, groupDiscussions, challengeCategory)
       }
 
-      for (const member of members) {
-        await manageVanillaUser({
-          challengeId: challenge.id,
-          action: constants.USER_ACTIONS.INVITE,
-          handle: member.handle,
-          projectRole: member.role
-        })
+      // Create a group for regular challenges
+      if (isRegular) {
+        for (const member of members) {
+          await manageVanillaUser({
+            challengeId: challenge.id,
+            action: constants.USER_ACTIONS.INVITE,
+            handle: member.handle,
+            projectRole: member.role
+          })
+        }
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
@@ -286,19 +306,33 @@ async function createVanillaGroup (challenge) {
   }
 }
 
+async function isRegularChallenge(challenge) {
+  const { text: challengeDetailsData} = await topcoderApi.getChallenge(challenge.id)
+  const challengeDetails = JSON.parse(challengeDetailsData)
+  const hasMarathonTags = challengeDetails.tags &&
+      (_.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.MM) ||
+          _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.RDM));
+  return !hasMarathonTags;
+}
 /**
  * Update a vanilla forum group.
  *
  * @param {Object} challenge the challenge data
  */
-async function updateVanillaGroup (challenge) {
+async function updateVanillaEntities (challenge) {
   logger.info(`Update: challengeID=${challenge.id}, status=${challenge.status}, selService=${challenge.legacy.selfService}:`)
+
+  const isRegular = await isRegularChallenge(challenge);
+  if(!isRegular) {
+    logger.info(`No updating for RMD/MM challenge with challengeID=${challenge.id}.`)
+    return
+  }
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
   if (groups.length === 0) {
     // Create the forums for all challenges with the Active status
     if(challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
-      await createVanillaGroup(challenge)
+      await createVanillaEntities(challenge)
       return
     } else {
       throw new Error('The group wasn\'t found for this challenge')
@@ -355,7 +389,7 @@ async function createDiscussions (group, challenge, templateDiscussions, vanilla
     await vanillaClient.createDiscussion({
       body: bodyTemplate({ challenge: challenge }),
       name: discussion.title,
-      groupID: group.groupID,
+      groupID: group? group.groupID: null,
       categoryID: vanillaCategory.categoryID,
       format: constants.VANILLA.DISCUSSION_FORMAT.MARKDOWN,
       closed: discussion.closed,
@@ -387,6 +421,6 @@ function shouldWatchCategories (projectRole, challengeRoles) {
 
 module.exports = {
   manageVanillaUser,
-  createVanillaGroup,
-  updateVanillaGroup
+  createVanillaEntities,
+  updateVanillaEntities
 }

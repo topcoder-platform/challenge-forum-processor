@@ -1,13 +1,13 @@
 const config = require('config')
 const util = require('util')
 const logger = require('../../utils/logger.util')
-const { updateVanillaGroup } = require('../../services/vanilla')
+const { updateVanillaEntities } = require('../../services/vanilla')
 const { processPayload } = require('./helpers')
 
 const services = []
 
 if (config.VANILLA_ENABLED) {
-  services.push(updateVanillaGroup)
+  services.push(updateVanillaEntities)
 }
 
 /**
