@@ -62,6 +62,11 @@ module.exports = {
     CHALLENGE_TAGS: {
       MM: 'Marathon Match',
       RDM: 'Rapid Development Match'
+    },
+    CHALLENGE_TYPES: {
+      REGULAR: 'Challenge',
+      MM: 'Marathon Match',
+      RDM: 'Rapid Development Match'
     }
   },
   VANILLA: {

@@ -175,8 +175,10 @@ async function createVanillaEntities (challenge) {
     return _.includes(allProjectRoles, member.role)
   })
 
-  const isMM = challengeDetails.tags &&  _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.MM);
-  const isRDM = challengeDetails.tags &&  _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.RDM);
+  const isMM = (challengeDetails.tags &&  _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.MM))
+   || (challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase())
+  const isRDM = (challengeDetails.tags &&  _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.RDM)
+   || challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase())
 
   let vanillaForumsName;
   if (isMM) {
@@ -189,6 +191,8 @@ async function createVanillaEntities (challenge) {
 
   const isRegular = !(isMM || isRDM)
   const archived = isRegular;
+
+  logger.info(`Vanilla template for the '${challengeDetails.name}' is ${vanillaForumsName}`)
 
   let forums = _.filter(template.categories, ['name', vanillaForumsName])
 
@@ -219,7 +223,7 @@ async function createVanillaEntities (challenge) {
         throw new Error('The group has been created for this challenge')
       }
 
-      logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
+      logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion using ${vanillaForumsName}`)
 
       let group;
 
@@ -230,7 +234,7 @@ async function createVanillaEntities (challenge) {
             : _.template(groupTemplate.group.description)
         const shorterGroupName = groupNameTemplate({challenge: challengeDetailsDiscussion}).substring(0, config.FORUM_TITLE_LENGTH_LIMIT)
 
-        const body = await vanillaClient.createGroup({
+        const {body: groupData} = await vanillaClient.createGroup({
           name: groupNameTemplate({challenge: challengeDetailsDiscussion}).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({challenge: challengeDetailsDiscussion}),
           privacy: groupTemplate.group.privacy,
           type: groupTemplate.group.type,
@@ -240,12 +244,12 @@ async function createVanillaEntities (challenge) {
           archived: archived
         })
 
-        group = body;
+        group = groupData;
         if (!group.groupID) {
           throw Error('Couldn\'t create a group', JSON.stringify(group))
         }
 
-        logger.info(`The group with groupID=${group.groupID} was created`)
+        logger.info(`The group with groupID=${group.groupID} was created. ${JSON.stringify(group)}`)
       }
 
       const parentCategoryName = forumTemplate.urlcode
@@ -309,10 +313,12 @@ async function createVanillaEntities (challenge) {
 async function isRegularChallenge(challenge) {
   const { text: challengeDetailsData} = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
-  const hasMarathonTags = challengeDetails.tags &&
+  const isMarathons = (challengeDetails.tags &&
       (_.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.MM) ||
-          _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.RDM));
-  return !hasMarathonTags;
+          _.includes(challengeDetails.tags,constants.TOPCODER.CHALLENGE_TAGS.RDM)))
+    || challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase()
+    || challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase()
+  return !isMarathons;
 }
 /**
  * Update a vanilla forum group.
