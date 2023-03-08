@@ -17,6 +17,12 @@ const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
  */
 async function manageVanillaUser (data) {
   const { challengeId, action, handle: username, projectRole, challengeRoles } = data
+  const isRegular = await isRegularChallenge({id: challengeId});
+  if(!isRegular){
+    logger.info(`Ignore managing users for RMD/MM challenge with challengeID=${challengeId}.`)
+    return
+  }
+
   logger.info(`Managing user for challengeID=${challengeId} [action=${action}, handle=${username}, projectRole=${JSON.stringify(projectRole)}, challengeRoles=${JSON.stringify(challengeRoles)}]...`)
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
   const group = groups.length > 0 ? groups[0] : null
@@ -192,7 +198,7 @@ async function createVanillaEntities (challenge) {
   const isRegular = !(isMM || isRDM)
   const archived = isRegular;
 
-  logger.info(`Vanilla template for the '${challengeDetails.name}' is ${vanillaForumsName}`)
+  logger.info(`Vanilla template for the '${challengeDetails.name}' is '${vanillaForumsName}'`)
 
   let forums = _.filter(template.categories, ['name', vanillaForumsName])
 
