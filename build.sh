@@ -2,7 +2,7 @@
 set -eo pipefail
 APP_NAME="challenge-forum-processor"
 UPDATE_CACHE=""
-docker-compose -f docker/docker-compose.yml build $APP_NAME
+docker compose -f docker/docker-compose.yml build $APP_NAME
 docker create --name app $APP_NAME:latest
 
 if [ -d node_modules ]
