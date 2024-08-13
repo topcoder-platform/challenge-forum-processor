@@ -17,6 +17,9 @@ const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
  */
 async function manageVanillaUser (data) {
   const { challengeId, action, handle: username, projectRole, challengeRoles } = data
+  if(!username){
+    return
+  }
   const isRegular = await isRegularChallenge({id: challengeId});
   if(!isRegular){
     logger.info(`Ignore managing users for RMD/MM challenge with challengeID=${challengeId}.`)
