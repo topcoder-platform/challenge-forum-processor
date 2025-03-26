@@ -10,7 +10,9 @@
     "setupData": "node scripts/setupData.js",
     "cleanData": "node scripts/cleanData.js",
     "lint": "standard \"src/**/*.js\" \"scripts/**/*.js\"",
-    "lint:fix": "standard --fix \"src/**/*.js\" \"scripts/**/*.js\""
+    "lint:fix": "standard --fix \"src/**/*.js\" \"scripts/**/*.js\"",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -26,7 +28,7 @@
   "dependencies": {
     "config": "^3.2.4",
     "dotenv": "^8.2.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "moment": "^2.24.0",
     "no-kafka": "^3.4.3",
     "rocketchat-api": "github:dhruvit-r/rocketchat-api-node",
@@ -34,11 +36,13 @@
     "superagent": "^5.1.1",
     "tc-core-library-js": "github:appirio-tech/tc-core-library-js",
     "winston": "^3.2.1",
-    "winston-timestamp-colorize": "^1.0.4"
+    "winston-timestamp-colorize": "^1.0.4",
+    "@snyk/protect": "latest"
   },
   "devDependencies": {
     "nodemon": "^2.0.1",
     "prettier-standard": "^15.0.1",
     "standard": "^14.3.1"
-  }
+  },
+  "snyk": true
 }
