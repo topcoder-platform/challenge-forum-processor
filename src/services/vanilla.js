@@ -262,10 +262,24 @@ async function createVanillaEntities (challenge) {
       }
 
       const parentCategoryName = forumTemplate.urlcode
+      
+      logger.info(`Looking for parent category for ${forumTemplate.urlcode}`)
       const {body: parentCategory} = await vanillaClient.getCategoryByUrlcode(parentCategoryName)
+      logger.info(`Found parent category: ${JSON.stringify(body)}`)
+      
       if (!parentCategory.categoryID) {
         throw new Error(`The '${parentCategoryName}' category wasn't found in Vanilla`)
       }
+
+      logger.info(`Creating category: ${JSON.stringify({
+        name: challenge.name,
+        urlcode: `${challenge.id}`,
+        parentCategoryID: parentCategory.categoryID,
+        displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS,
+        groupID: group? group.groupID: null,
+        archived: archived
+      })}`)
+      
       // Create the root challenge category
       const { body: challengeCategory } = await vanillaClient.createCategory({
         name: challenge.name,
