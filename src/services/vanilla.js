@@ -268,7 +268,7 @@ async function createVanillaEntities (challenge) {
       
       logger.info(`Looking for parent category for ${forumTemplate.urlcode}`)
       const {body: parentCategory} = await vanillaClient.getCategoryByUrlcode(parentCategoryName)
-      logger.info(`Found parent category: ${JSON.stringify(body)}`)
+      logger.info(`Found parent category: ${JSON.stringify(parentCategory)}`)
       
       if (!parentCategory.categoryID) {
         throw new Error(`The '${parentCategoryName}' category wasn't found in Vanilla`)
