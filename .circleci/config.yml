@@ -5,8 +5,8 @@ defaults: &defaults
 install_dependency: &install_dependency
   name: Installation of build and deployment dependencies.
   command: |
-    sudo apt install jq
     sudo apt update
+    sudo apt install jq -y
     apt install python3-pip python-is-python3 python3.11-venv -y
     curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
     unzip awscli-bundle.zip
