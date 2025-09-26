@@ -61,7 +61,7 @@ async function reqToAPI (reqType, path, reqBody) {
  * @param {String} userId User's ID (6-digit numeric)
  */
 async function getUserDetailsById (userId) {
-  const path = `${config.TOPCODER.API_URL}/v3/users?filter=id%3D${userId}`
+  const path = `${config.TOPCODER.API_URL}/v6/users?filter=id%3D${userId}`
   return reqToAPI('GET', path)
 }
 
