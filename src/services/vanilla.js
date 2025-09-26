@@ -162,14 +162,17 @@ async function createVanillaEntities (challenge) {
     return
   }
 
-  const challengeDiscussions = _.filter(challengeDetails.discussions, { provider: 'vanilla', type: 'challenge' })
+  const challengeDiscussions = _.filter(challengeDetails.discussions, discussion => {
+    return discussion.provider === 'vanilla' &&
+      _.get(discussion, 'type', '').toUpperCase() === 'CHALLENGE'
+  })
   if (challengeDiscussions.length === 0) {
-    logger.info('The challenge doesn\'t have discussions with type=\'challenge\' and provider=\'vanilla\'.')
+    logger.info('The challenge doesn\'t have discussions with type=\'CHALLENGE\' and provider=\'vanilla\'.')
     return
   }
 
   if (challengeDiscussions.length > 1) {
-    throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
+    throw new Error('Multiple discussions with type=\'CHALLENGE\' and provider=\'vanilla\' are not supported.')
   }
 
   const isSelfService = challenge.legacy && challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
@@ -221,9 +224,9 @@ async function createVanillaEntities (challenge) {
 
   for (let i = 0; i < challengeDetails.discussions.length; i++) {
     const challengeDetailsDiscussion = challengeDetails.discussions[i]
-    if (challengeDetailsDiscussion.type === 'challenge' && challengeDetailsDiscussion.provider === 'vanilla') {
+    if (_.get(challengeDetailsDiscussion, 'type', '').toUpperCase() === 'CHALLENGE' && challengeDetailsDiscussion.provider === 'vanilla') {
       if (challengeDetailsDiscussion.url && challengeDetailsDiscussion.url !== '') {
-        logger.info(`The url has been set for the ${challengeDetailsDiscussion.name} discussion with type='challenge' and provider='vanilla'`)
+        logger.info(`The url has been set for the ${challengeDetailsDiscussion.name} discussion with type='${challengeDetailsDiscussion.type}' and provider='vanilla'`)
         continue
       }
 
