@@ -52,6 +52,45 @@ function getChallengeTrackName(challenge, challengeDetails) {
 }
 
 /**
+ * Extracts unique role names from Topcoder roles payloads.
+ *
+ * @param {Object|Array} rolesPayload the payload returned by the roles endpoint
+ * @returns {Array<string>} normalized role names
+ */
+function getTopcoderRoleNames(rolesPayload) {
+  const collectRoleNames = roles => _.chain(roles)
+    .map(role => _.isObject(role) ? (role.roleName || role.name || '') : '')
+    .filter(name => _.isString(name) && name.trim())
+    .map(name => name.trim())
+    .uniq()
+    .value()
+
+  if (_.isArray(rolesPayload)) {
+    return collectRoleNames(rolesPayload)
+  }
+
+  if (_.isObject(rolesPayload)) {
+    if (_.isArray(rolesPayload.roles)) {
+      return collectRoleNames(rolesPayload.roles)
+    }
+    if (_.isArray(rolesPayload.data)) {
+      return collectRoleNames(rolesPayload.data)
+    }
+    if (_.isObject(rolesPayload.result)) {
+      const { result } = rolesPayload
+      if (_.isArray(result.roles)) {
+        return collectRoleNames(result.roles)
+      }
+      if (_.isArray(result.content)) {
+        return collectRoleNames(result.content)
+      }
+    }
+  }
+
+  return []
+}
+
+/**
  * Add/Remove a user to/from a group.
  * @param {Object} data the data from message payload
  * @returns {undefined}
@@ -89,7 +128,7 @@ async function manageVanillaUser(data) {
 
   const { text: topcoderRolesResponseStr } = await topcoderApi.getRoles(topcoderProfile.id)
   const topcoderRolesResponse = JSON.parse(topcoderRolesResponseStr)
-  const topcoderRoleNames = _.map(topcoderRolesResponse, 'roleName')
+  const topcoderRoleNames = getTopcoderRoleNames(topcoderRolesResponse)
 
   const { body: allVanillaRoles } = await vanillaClient.getAllRoles()
 
