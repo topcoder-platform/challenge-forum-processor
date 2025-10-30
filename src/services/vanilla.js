@@ -28,6 +28,30 @@ function getChallengeTypeName(challengeDetails) {
 }
 
 /**
+ * Extract challenge track name from challenge payloads.
+ *
+ * @param {Object} challenge the challenge data from message payload
+ * @param {Object} challengeDetails the challenge details payload
+ * @returns {string} the challenge track name or empty string
+ */
+function getChallengeTrackName(challenge, challengeDetails) {
+  const candidates = [
+    _.get(challenge, 'track'),
+    _.get(challenge, 'track.name'),
+    _.get(challenge, 'track.track'),
+    _.get(challengeDetails, 'track'),
+    _.get(challengeDetails, 'track.name'),
+    _.get(challengeDetails, 'track.track')
+  ]
+  for (const candidate of candidates) {
+    if (_.isString(candidate) && candidate.trim()) {
+      return candidate.trim()
+    }
+  }
+  return ''
+}
+
+/**
  * Add/Remove a user to/from a group.
  * @param {Object} data the data from message payload
  * @returns {undefined}
@@ -230,14 +254,21 @@ async function createVanillaEntities(challenge) {
     throw new Error(`The '${vanillaForumsName}' category wasn't found in the template json file`)
   }
 
-  const forumTemplate = _.find(forums[0].categories, { categories: [{ track: `${challenge.track}` }] })
+  const challengeTrack = getChallengeTrackName(challenge, challengeDetails)
+  const normalizedChallengeTrack = challengeTrack.toLowerCase()
+  const challengeTrackForError = challengeTrack || (_.isString(challenge.track) ? challenge.track : '') || 'unknown'
+
+  const forumTemplate = _.find(forums[0].categories, forumCategory => {
+    const trackCategories = _.get(forumCategory, 'categories', [])
+    return _.some(trackCategories, category => _.isString(category.track) && category.track.toLowerCase() === normalizedChallengeTrack)
+  })
   if (!forumTemplate) {
-    throw new Error(`The category template for the '${challenge.track}' track wasn't found in the template json file`)
+    throw new Error(`The category template for the '${challengeTrackForError}' track wasn't found in the template json file`)
   }
 
-  const groupTemplate = _.find(forumTemplate.categories, { track: `${challenge.track}` })
+  const groupTemplate = _.find(forumTemplate.categories, category => _.isString(category.track) && category.track.toLowerCase() === normalizedChallengeTrack)
   if (!groupTemplate) {
-    throw new Error(`The group template for the '${challenge.track}' track wasn't found in the template json file`)
+    throw new Error(`The group template for the '${challengeTrackForError}' track wasn't found in the template json file`)
   }
 
   for (let i = 0; i < challengeDetails.discussions.length; i++) {
