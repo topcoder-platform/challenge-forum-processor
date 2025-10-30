@@ -11,6 +11,23 @@ const utils = require('../utils/common.util')
 const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
 
 /**
+ * Extract the challenge type name from the challenge details payload.
+ *
+ * @param {Object} challengeDetails the challenge details payload
+ * @returns {string} the challenge type name or empty string
+ */
+function getChallengeTypeName(challengeDetails) {
+  const type = _.get(challengeDetails, 'type')
+  if (_.isString(type)) {
+    return type
+  }
+  if (_.isObject(type) && _.isString(type.name)) {
+    return type.name
+  }
+  return ''
+}
+
+/**
  * Add/Remove a user to/from a group.
  * @param {Object} data the data from message payload
  * @returns {undefined}
@@ -162,6 +179,7 @@ async function createVanillaEntities(challenge) {
     return
   }
 
+  const challengeType = getChallengeTypeName(challengeDetails).toLowerCase()
   const challengeDiscussions = _.filter(challengeDetails.discussions, discussion => {
     return discussion.provider === 'vanilla' &&
       _.get(discussion, 'type', '').toUpperCase() === 'CHALLENGE'
@@ -188,9 +206,9 @@ async function createVanillaEntities(challenge) {
   })
 
   const isMM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.MM))
-    || (challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase())
+    || (challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase())
   const isRDM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM)
-    || challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase())
+    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase())
 
   let vanillaForumsName;
   if (isMM) {
@@ -339,11 +357,12 @@ async function createVanillaEntities(challenge) {
 async function isRegularChallenge(challenge) {
   const { text: challengeDetailsData } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
+  const challengeType = getChallengeTypeName(challengeDetails).toLowerCase()
   const isMarathons = (challengeDetails.tags &&
     (_.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.MM) ||
       _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM)))
-    || challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase()
-    || challengeDetails.type.toLowerCase() === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase()
+    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase()
+    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase()
   return !isMarathons;
 }
 /**
