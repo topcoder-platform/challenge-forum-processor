@@ -11,12 +11,101 @@ const utils = require('../utils/common.util')
 const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
 
 /**
+ * Extract the challenge type name from the challenge details payload.
+ *
+ * @param {Object} challengeDetails the challenge details payload
+ * @returns {string} the challenge type name or empty string
+ */
+function getChallengeTypeName(challengeDetails) {
+  const type = _.get(challengeDetails, 'type')
+  if (_.isString(type)) {
+    return type
+  }
+  if (_.isObject(type) && _.isString(type.name)) {
+    return type.name
+  }
+  return ''
+}
+
+/**
+ * Extract challenge track name from challenge payloads.
+ *
+ * @param {Object} challenge the challenge data from message payload
+ * @param {Object} challengeDetails the challenge details payload
+ * @returns {string} the challenge track name or empty string
+ */
+function getChallengeTrackName(challenge, challengeDetails) {
+  const candidates = [
+    _.get(challenge, 'track'),
+    _.get(challenge, 'track.name'),
+    _.get(challenge, 'track.track'),
+    _.get(challengeDetails, 'track'),
+    _.get(challengeDetails, 'track.name'),
+    _.get(challengeDetails, 'track.track')
+  ]
+  for (const candidate of candidates) {
+    if (_.isString(candidate) && candidate.trim()) {
+      return candidate.trim()
+    }
+  }
+  return ''
+}
+
+/**
+ * Extracts unique role names from Topcoder roles payloads.
+ *
+ * @param {Object|Array} rolesPayload the payload returned by the roles endpoint
+ * @returns {Array<string>} normalized role names
+ */
+function getTopcoderRoleNames(rolesPayload) {
+  const collectRoleNames = roles => _.chain(roles)
+    .map(role => _.isObject(role) ? (role.roleName || role.name || '') : '')
+    .filter(name => _.isString(name) && name.trim())
+    .map(name => name.trim())
+    .uniq()
+    .value()
+
+  if (_.isArray(rolesPayload)) {
+    return collectRoleNames(rolesPayload)
+  }
+
+  if (_.isObject(rolesPayload)) {
+    if (_.isArray(rolesPayload.roles)) {
+      return collectRoleNames(rolesPayload.roles)
+    }
+    if (_.isArray(rolesPayload.data)) {
+      return collectRoleNames(rolesPayload.data)
+    }
+    if (_.isObject(rolesPayload.result)) {
+      const { result } = rolesPayload
+      if (_.isArray(result.roles)) {
+        return collectRoleNames(result.roles)
+      }
+      if (_.isArray(result.content)) {
+        return collectRoleNames(result.content)
+      }
+    }
+  }
+
+  return []
+}
+
+/**
  * Add/Remove a user to/from a group.
  * @param {Object} data the data from message payload
  * @returns {undefined}
  */
-async function manageVanillaUser (data) {
+async function manageVanillaUser(data) {
   const { challengeId, action, handle: username, projectRole, challengeRoles } = data
+  if (!username) {
+    return
+  }
+  const isRegular = await isRegularChallenge({ id: challengeId });
+  if (!isRegular) {
+    logger.info(`Ignore managing users for RMD/MM challenge with challengeID=${challengeId}.`)
+    return
+  }
+
   logger.info(`Managing user for challengeID=${challengeId} [action=${action}, handle=${username}, projectRole=${JSON.stringify(projectRole)}, challengeRoles=${JSON.stringify(challengeRoles)}]...`)
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
   const group = groups.length > 0 ? groups[0] : null
@@ -31,15 +120,15 @@ async function manageVanillaUser (data) {
 
   const { text: topcoderProfileResponseStr, status } = await topcoderApi.getUserDetailsByHandle(username)
 
-  const topcoderProfileResponse = JSON.parse(topcoderProfileResponseStr).result
+  const topcoderProfileResponse = JSON.parse(topcoderProfileResponseStr)
   if (status !== 200) {
-    throw new Error('Couldn\'t load Topcoder profile', topcoderProfileResponse.content)
+    throw new Error('Couldn\'t load Topcoder profile', topcoderProfileResponse)
   }
-  const topcoderProfile = JSON.parse(topcoderProfileResponseStr).result.content[0]
+  const topcoderProfile = JSON.parse(topcoderProfileResponseStr)[0]
 
   const { text: topcoderRolesResponseStr } = await topcoderApi.getRoles(topcoderProfile.id)
-  const topcoderRolesResponse = JSON.parse(topcoderRolesResponseStr).result.content
-  const topcoderRoleNames = _.map(topcoderRolesResponse, 'roleName')
+  const topcoderRolesResponse = JSON.parse(topcoderRolesResponseStr)
+  const topcoderRoleNames = getTopcoderRoleNames(topcoderRolesResponse)
 
   const { body: allVanillaRoles } = await vanillaClient.getAllRoles()
 
@@ -114,7 +203,7 @@ async function manageVanillaUser (data) {
   }
 }
 
-async function addTopcoderRoles (allVanillaRoles, topcoderRoleNames) {
+async function addTopcoderRoles(allVanillaRoles, topcoderRoleNames) {
   const allTopcoderRoles = _.filter(allVanillaRoles, { type: 'topcoder' })
   const userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role.name))
   const userTopcoderRoleIDs = _.map(userTopcoderRoles, 'roleID')
@@ -139,8 +228,8 @@ async function addTopcoderRoles (allVanillaRoles, topcoderRoleNames) {
  *
  * @param {Object} challenge the challenge data
  */
-async function createVanillaGroup (challenge) {
-  logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy.selfService}:`)
+async function createVanillaEntities(challenge) {
+  logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy ? challenge.legacy.selfService : null}:`)
   const { text: challengeDetailsData, status: responseStatus } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
 
@@ -153,18 +242,22 @@ async function createVanillaGroup (challenge) {
     return
   }
 
-  const challengeDiscussions = _.filter(challengeDetails.discussions, { provider: 'vanilla', type: 'challenge' })
+  const challengeType = getChallengeTypeName(challengeDetails).toLowerCase()
+  const challengeDiscussions = _.filter(challengeDetails.discussions, discussion => {
+    return discussion.provider === 'vanilla' &&
+      _.get(discussion, 'type', '').toUpperCase() === 'CHALLENGE'
+  })
   if (challengeDiscussions.length === 0) {
-    logger.info('The challenge doesn\'t have discussions with type=\'challenge\' and provider=\'vanilla\'.')
+    logger.info('The challenge doesn\'t have discussions with type=\'CHALLENGE\' and provider=\'vanilla\'.')
     return
   }
 
   if (challengeDiscussions.length > 1) {
-    throw new Error('Multiple discussions with type=\'challenge\' and provider=\'vanilla\' are not supported.')
+    throw new Error('Multiple discussions with type=\'CHALLENGE\' and provider=\'vanilla\' are not supported.')
   }
 
-  const isSelfService = challenge.legacy.selfService && challenge.legacy.selfService === true ? true: false
-  if(isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+  const isSelfService = challenge.legacy && challenge.legacy.selfService && challenge.legacy.selfService === true ? true : false
+  if (isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
     logger.info(`The forums are created only for the active self-service challenges.`)
     return
   }
@@ -175,26 +268,53 @@ async function createVanillaGroup (challenge) {
     return _.includes(allProjectRoles, member.role)
   })
 
-  const challengesForums = _.filter(template.categories, ['name', constants.VANILLA.CHALLENGES_FORUM])
-  if (!challengesForums) {
-    throw new Error(`The '${constants.VANILLA.CHALLENGES_FORUM}' category wasn't found in the template json file`)
+  const isMM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.MM))
+    || (challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase())
+  const isRDM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM)
+    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase())
+
+  let vanillaForumsName;
+  if (isMM) {
+    vanillaForumsName = constants.VANILLA.MMS_FORUM;
+  } else if (isRDM) {
+    vanillaForumsName = constants.VANILLA.RDMS_FORUM;
+  } else {
+    vanillaForumsName = constants.VANILLA.CHALLENGES_FORUM;
   }
 
-  const forumTemplate = _.find(challengesForums[0].categories, { categories: [{ track: `${challenge.track}` }] })
+  const isRegular = !(isMM || isRDM)
+  const archived = isRegular;
+
+  logger.info(`Vanilla template for the '${challengeDetails.name}' is '${vanillaForumsName}'`)
+
+  let forums = _.filter(template.categories, ['name', vanillaForumsName])
+
+  if (!forums) {
+    throw new Error(`The '${vanillaForumsName}' category wasn't found in the template json file`)
+  }
+
+  const challengeTrack = getChallengeTrackName(challenge, challengeDetails)
+  const normalizedChallengeTrack = challengeTrack.toLowerCase()
+  const challengeTrackForError = challengeTrack || (_.isString(challenge.track) ? challenge.track : '') || 'unknown'
+
+  const forumTemplate = _.find(forums[0].categories, forumCategory => {
+    const trackCategories = _.get(forumCategory, 'categories', [])
+    return _.some(trackCategories, category => _.isString(category.track) && category.track.toLowerCase() === normalizedChallengeTrack)
+  })
   if (!forumTemplate) {
-    throw new Error(`The category template for the '${challenge.track}' track wasn't found in the template json file`)
+    throw new Error(`The category template for the '${challengeTrackForError}' track wasn't found in the template json file`)
   }
 
-  const groupTemplate = _.find(forumTemplate.categories, { track: `${challenge.track}` })
+  const groupTemplate = _.find(forumTemplate.categories, category => _.isString(category.track) && category.track.toLowerCase() === normalizedChallengeTrack)
   if (!groupTemplate) {
-    throw new Error(`The group template for the '${challenge.track}' track wasn't found in the template json file`)
+    throw new Error(`The group template for the '${challengeTrackForError}' track wasn't found in the template json file`)
   }
 
   for (let i = 0; i < challengeDetails.discussions.length; i++) {
     const challengeDetailsDiscussion = challengeDetails.discussions[i]
-    if (challengeDetailsDiscussion.type === 'challenge' && challengeDetailsDiscussion.provider === 'vanilla') {
+    if (_.get(challengeDetailsDiscussion, 'type', '').toUpperCase() === 'CHALLENGE' && challengeDetailsDiscussion.provider === 'vanilla') {
       if (challengeDetailsDiscussion.url && challengeDetailsDiscussion.url !== '') {
-        logger.info(`The url has been set for the ${challengeDetailsDiscussion.name} discussion with type='challenge' and provider='vanilla'`)
+        logger.info(`The url has been set for the ${challengeDetailsDiscussion.name} discussion with type='${challengeDetailsDiscussion.type}' and provider='vanilla'`)
         continue
       }
 
@@ -203,47 +323,62 @@ async function createVanillaGroup (challenge) {
         throw new Error('The group has been created for this challenge')
       }
 
-      logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion ....`)
+      logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion using ${vanillaForumsName}`)
 
-      const groupNameTemplate = _.template(groupTemplate.group.name)
-      const groupDescriptionTemplate = challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
-        : _.template(groupTemplate.group.description)
-      const shorterGroupName = groupNameTemplate({ challenge: challengeDetailsDiscussion }).substring(0,config.FORUM_TITLE_LENGTH_LIMIT)
+      let group;
 
-      const { body: group } = await vanillaClient.createGroup({
-        name: groupNameTemplate({ challenge: challengeDetailsDiscussion }).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({ challenge: challengeDetailsDiscussion }),
-        privacy: groupTemplate.group.privacy,
-        type: groupTemplate.group.type,
-        description: groupDescriptionTemplate({ challenge }),
-        challengeID: `${challenge.id}`,
-        challengeUrl: `${challenge.url}`,
-        archived: true
-      })
+      // Create a group for regular challenges
+      if (isRegular) {
+        const groupNameTemplate = _.template(groupTemplate.group.name)
+        const groupDescriptionTemplate = challenge.legacy && challenge.legacy.selfService ? _.template(groupTemplate.group.selfServiceDescription)
+          : _.template(groupTemplate.group.description)
+        const shorterGroupName = groupNameTemplate({ challenge: challengeDetailsDiscussion }).substring(0, config.FORUM_TITLE_LENGTH_LIMIT)
 
-      if (!group.groupID) {
-        throw Error('Couldn\'t create a group', JSON.stringify(group))
+        const { body: groupData } = await vanillaClient.createGroup({
+          name: groupNameTemplate({ challenge: challengeDetailsDiscussion }).length >= config.FORUM_TITLE_LENGTH_LIMIT ? `${shorterGroupName}...` : groupNameTemplate({ challenge: challengeDetailsDiscussion }),
+          privacy: groupTemplate.group.privacy,
+          type: groupTemplate.group.type,
+          description: groupDescriptionTemplate({ challenge }),
+          challengeID: `${challenge.id}`,
+          challengeUrl: `${challenge.url}`,
+          archived: archived
+        })
+
+        group = groupData;
+        if (!group.groupID) {
+          throw Error('Couldn\'t create a group', JSON.stringify(group))
+        }
+
+        logger.info(`The group with groupID=${group.groupID} was created. ${JSON.stringify(group)}`)
       }
 
-      logger.info(`The group with groupID=${group.groupID} was created`)
+      const parentCategoryName = forumTemplate.urlcode
 
-      const parentCategoryName = forumTemplate.name
-      const { body: parentCategory } = await vanillaClient.searchCategories(parentCategoryName)
-      if (parentCategory.length === 0) {
+      logger.info(`Looking for parent category for ${forumTemplate.urlcode}`)
+      const { body: parentCategory } = await vanillaClient.getCategoryByUrlcode(parentCategoryName)
+      logger.info(`Found parent category: ${JSON.stringify(parentCategory)}`)
+
+      if (!parentCategory.categoryID) {
         throw new Error(`The '${parentCategoryName}' category wasn't found in Vanilla`)
       }
 
-      if (parentCategory.length > 1) {
-        throw new Error(`The multiple categories with the '${parentCategoryName}' name were found in Vanilla`)
-      }
-            
+      logger.info(`Creating category: ${JSON.stringify({
+        name: challenge.name,
+        urlcode: `${challenge.id}`,
+        parentCategoryID: parentCategory.categoryID,
+        displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS,
+        groupID: group ? group.groupID : null,
+        archived: archived
+      })}`)
+
       // Create the root challenge category
       const { body: challengeCategory } = await vanillaClient.createCategory({
         name: challenge.name,
         urlcode: `${challenge.id}`,
-        parentCategoryID: parentCategory[0].categoryID,
+        parentCategoryID: parentCategory.categoryID,
         displayAs: groupTemplate.categories ? constants.VANILLA.CATEGORY_DISPLAY_STYLE.CATEGORIES : constants.VANILLA.CATEGORY_DISPLAY_STYLE.DISCUSSIONS,
-        groupID: group.groupID,
-        archived: true
+        groupID: group ? group.groupID : null,
+        archived: archived
       })
 
       logger.info(`The '${challengeCategory.name}' category was created.`)
@@ -256,8 +391,8 @@ async function createVanillaGroup (challenge) {
             name: item.name,
             urlcode: `${urlCodeTemplate({ challenge })}`,
             parentCategoryID: challengeCategory.categoryID,
-            groupID: group.groupID,
-            archived: true
+            groupID: group ? group.groupID : null,
+            archived: archived
           })
           logger.info(`The '${item.name}' category was created`)
           await createDiscussions(group, challenge, item.discussions, childCategory)
@@ -269,13 +404,16 @@ async function createVanillaGroup (challenge) {
         await createDiscussions(group, challenge, groupDiscussions, challengeCategory)
       }
 
-      for (const member of members) {
-        await manageVanillaUser({
-          challengeId: challenge.id,
-          action: constants.USER_ACTIONS.INVITE,
-          handle: member.handle,
-          projectRole: member.role
-        })
+      // Create a group for regular challenges
+      if (isRegular) {
+        for (const member of members) {
+          await manageVanillaUser({
+            challengeId: challenge.id,
+            action: constants.USER_ACTIONS.INVITE,
+            handle: member.handle,
+            projectRole: member.role
+          })
+        }
       }
 
       challengeDetailsDiscussion.url = `${challengeCategory.url}`
@@ -286,19 +424,36 @@ async function createVanillaGroup (challenge) {
   }
 }
 
+async function isRegularChallenge(challenge) {
+  const { text: challengeDetailsData } = await topcoderApi.getChallenge(challenge.id)
+  const challengeDetails = JSON.parse(challengeDetailsData)
+  const challengeType = getChallengeTypeName(challengeDetails).toLowerCase()
+  const isMarathons = (challengeDetails.tags &&
+    (_.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.MM) ||
+      _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM)))
+    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase()
+    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase()
+  return !isMarathons;
+}
 /**
  * Update a vanilla forum group.
  *
  * @param {Object} challenge the challenge data
  */
-async function updateVanillaGroup (challenge) {
+async function updateVanillaEntities(challenge) {
   logger.info(`Update: challengeID=${challenge.id}, status=${challenge.status}, selService=${challenge.legacy.selfService}:`)
+
+  const isRegular = await isRegularChallenge(challenge);
+  if (!isRegular) {
+    logger.info(`No updating for RMD/MM challenge with challengeID=${challenge.id}.`)
+    return
+  }
 
   const { body: groups } = await vanillaClient.searchGroups(challenge.id)
   if (groups.length === 0) {
     // Create the forums for all challenges with the Active status
-    if(challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
-      await createVanillaGroup(challenge)
+    if (challenge.status === constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
+      await createVanillaEntities(challenge)
       return
     } else {
       throw new Error('The group wasn\'t found for this challenge')
@@ -313,20 +468,20 @@ async function updateVanillaGroup (challenge) {
     await vanillaClient.unarchiveGroup(groups[0].groupID)
     logger.info(`The group with groupID=${groups[0].groupID} was unarchived.`)
   } else if (_.includes([constants.TOPCODER.CHALLENGE_STATUSES.COMPLETED,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_REVIEW,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_SCREENING,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_SUBMISSIONS,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_WINNER_UNRESPONSIVE,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_CLIENT_REQUEST,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_REQUIREMENTS_INFEASIBLE,
-    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_REGISTRATIONS,
-    constants.TOPCODER.CHALLENGE_STATUSES.DELETED], challenge.status)) {
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED,
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_REVIEW,
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_SCREENING,
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_SUBMISSIONS,
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_WINNER_UNRESPONSIVE,
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_CLIENT_REQUEST,
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_REQUIREMENTS_INFEASIBLE,
+  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_REGISTRATIONS,
+  constants.TOPCODER.CHALLENGE_STATUSES.DELETED], challenge.status)) {
     await vanillaClient.archiveGroup(groups[0].groupID)
     logger.info(`The group with groupID=${groups[0].groupID} was archived.`)
   }
 
-  const shorterName = challenge.name.substring(0,config.FORUM_TITLE_LENGTH_LIMIT)
+  const shorterName = challenge.name.substring(0, config.FORUM_TITLE_LENGTH_LIMIT)
   const { body: updatedGroup } = await vanillaClient.updateGroup(groups[0].groupID, { name: shorterName })
   logger.info(`The group with groupID=${groups[0].groupID} was updated: ${JSON.stringify(updatedGroup)}`)
 
@@ -348,14 +503,14 @@ async function updateVanillaGroup (challenge) {
   logger.info(`The group category was updated: ${JSON.stringify(updatedGroupCategory)}`)
 }
 
-async function createDiscussions (group, challenge, templateDiscussions, vanillaCategory) {
+async function createDiscussions(group, challenge, templateDiscussions, vanillaCategory) {
   for (const discussion of templateDiscussions) {
     // create a discussion
     const bodyTemplate = _.template(discussion.body)
     await vanillaClient.createDiscussion({
       body: bodyTemplate({ challenge: challenge }),
       name: discussion.title,
-      groupID: group.groupID,
+      groupID: group ? group.groupID : null,
       categoryID: vanillaCategory.categoryID,
       format: constants.VANILLA.DISCUSSION_FORMAT.MARKDOWN,
       closed: discussion.closed,
@@ -371,7 +526,7 @@ async function createDiscussions (group, challenge, templateDiscussions, vanilla
  * @param challengeRoles array
  * @returns {boolean}
  */
-function shouldWatchCategories (projectRole, challengeRoles) {
+function shouldWatchCategories(projectRole, challengeRoles) {
   // New user
   if (!projectRole && _.isEmpty(challengeRoles)) {
     return true
@@ -381,12 +536,12 @@ function shouldWatchCategories (projectRole, challengeRoles) {
   return (projectRole === constants.TOPCODER.PROJECT_ROLES.COPILOT ||
     (_.isArray(challengeRoles) && (_.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.COPILOT) ||
       _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.SUBMITTER) ||
-        _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.CLIENT_MANAGER)))
+      _.includes(challengeRoles, constants.TOPCODER.CHALLENGE_ROLES.CLIENT_MANAGER)))
   )
 }
 
 module.exports = {
   manageVanillaUser,
-  createVanillaGroup,
-  updateVanillaGroup
+  createVanillaEntities,
+  updateVanillaEntities
 }

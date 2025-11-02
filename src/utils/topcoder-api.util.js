@@ -61,7 +61,7 @@ async function reqToAPI (reqType, path, reqBody) {
  * @param {String} userId User's ID (6-digit numeric)
  */
 async function getUserDetailsById (userId) {
-  const path = `${config.TOPCODER.API_URL}/v3/users?filter=id%3D${userId}`
+  const path = `${config.TOPCODER.API_URL}/v6/users?filter=id%3D${userId}`
   return reqToAPI('GET', path)
 }
 
@@ -70,7 +70,7 @@ async function getUserDetailsById (userId) {
  * @param {String} handle
  */
 async function getUserDetailsByHandle (handle) {
-  const path = `${config.TOPCODER.API_URL}/v3/users?filter=handle%3D${handle}`
+  const path = `${config.TOPCODER.API_URL}/v6/users?filter=handle%3D${handle}`
   return reqToAPI('GET', path)
 }
 
@@ -79,7 +79,7 @@ async function getUserDetailsByHandle (handle) {
  * @param {String} challengeId Challenge's ID (uuid)
  */
 async function getChallenge (challengeId) {
-  const path = `${config.TOPCODER.API_URL}/v5/challenges/${challengeId}`
+  const path = `${config.TOPCODER.API_URL}/v6/challenges/${challengeId}`
   return reqToAPI('GET', path)
 }
 
@@ -88,7 +88,7 @@ async function getChallenge (challengeId) {
  * @param {String} challengeId Challenge's ID (uuid)
  */
 async function updateChallenge (challengeId, data) {
-  const path = `${config.TOPCODER.API_URL}/v5/challenges/${challengeId}`
+  const path = `${config.TOPCODER.API_URL}/v6/challenges/${challengeId}`
   return reqToAPI('PATCH', path, data)
 }
 
@@ -97,7 +97,7 @@ async function updateChallenge (challengeId, data) {
  * @param {int} userId User's ID
  */
 async function getRoles (userId) {
-  const path = `${config.TOPCODER.API_URL}/v3/roles?filter=subjectID%3D${userId}`
+  const path = `${config.TOPCODER.API_URL}/v6/roles?filter=subjectID%3D${userId}`
   return reqToAPI('GET', path)
 }
 
@@ -114,7 +114,7 @@ async function getProject (projectId) {
  * Gets the list of Resource Roles by challengeId
  */
 async function getAllChallengeRoles (challengeId) {
-  const path = `${config.TOPCODER.API_URL}/v5/resources?challengeId=${challengeId}`
+  const path = `${config.TOPCODER.API_URL}/v6/resources?challengeId=${challengeId}`
   return reqToAPI('GET', path)
 }
 
@@ -122,7 +122,7 @@ async function getAllChallengeRoles (challengeId) {
  * Gets the list of All Resource Roles
  */
 async function getAllRoles () {
-  const path = `${config.TOPCODER.API_URL}/v5/resource-roles`
+  const path = `${config.TOPCODER.API_URL}/v6/resource-roles`
   return reqToAPI('GET', path)
 }
 

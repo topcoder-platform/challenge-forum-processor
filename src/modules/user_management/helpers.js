@@ -35,7 +35,7 @@ function processPayload (payload, topic) {
  */
 async function getTopcoderUserHandle (userId) {
   const userDetails = await topcoderApi.getUserDetailsById(userId)
-  const userHandle = _.get(userDetails, 'body.result.content[0].handle')
+  const userHandle = _.get(userDetails, 'body[0].handle')
   if (_.isUndefined(userHandle)) {
     throw new Error('Topcoder user not found')
   }

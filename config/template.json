@@ -201,7 +201,541 @@
       ]
     },
     {
-      "name": "Marathon Matches"
+      "name": "Marathon Matches (MMS)",
+      "urlcode": "mms-forums",
+      "categories": [
+        {
+          "name": "Development Forums",
+          "urlcode": "mms-dev-forums",
+          "categories": [
+            {
+              "track": "Development",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully. If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            },
+            {
+              "track": "Quality Assurance",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "group": {
+                "name": "${ challenge.name }",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "selfServiceDescription": "Welcome to ${ challenge.name } Forum.",
+                "privacy": "secret",
+                "type": "challenge"
+              },
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Design Forums",
+          "urlcode": "mms-design-forums",
+          "categories": [
+            {
+              "track": "Design",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "discussions": [
+                {
+                  "title": "Spec Review Discussion",
+                  "body": "Spec Review Discussion",
+                  "announce": 0,
+                  "closed": 0,
+                  "selfService": false
+                },
+                {
+                  "title": "Welcome!",
+                  "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
+                  "announce": 0,
+                  "closed": 0,
+                  "selfService": false
+                },
+                {
+                  "title": "Challenge Overview",
+                  "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                  "announce": 1,
+                  "closed": 1,
+                  "selfService": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Data Science Forums",
+          "urlcode": "mms-ds-forums",
+          "categories": [
+            {
+              "track": "Data Science",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully. If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Competitive Programming",
+          "urlcode": "mms-cp-forums",
+          "categories": [
+            {
+              "track": "Competitive Programming",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully. If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            },
+            {
+              "track": "Quality Assurance",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "group": {
+                "name": "${ challenge.name }",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "selfServiceDescription": "Welcome to ${ challenge.name } Forum.",
+                "privacy": "secret",
+                "type": "challenge"
+              },
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rapid Development Matches (RDMS)",
+      "urlcode": "rdms-forums",
+      "categories": [
+        {
+          "name": "Development Forums",
+          "urlcode": "rdms-dev-forums",
+          "categories": [
+            {
+              "track": "Development",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully. If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            },
+            {
+              "track": "Quality Assurance",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Design Forums",
+          "urlcode": "rdms-design-forums",
+          "categories": [
+            {
+              "track": "Design",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "discussions": [
+                {
+                  "title": "Spec Review Discussion",
+                  "body": "Spec Review Discussion",
+                  "announce": 0,
+                  "closed": 0,
+                  "selfService": false
+                },
+                {
+                  "title": "Welcome!",
+                  "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
+                  "announce": 0,
+                  "closed": 0,
+                  "selfService": false
+                },
+                {
+                  "title": "Challenge Overview",
+                  "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                  "announce": 1,
+                  "closed": 1,
+                  "selfService": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Data Science Forums",
+          "urlcode": "rdms-ds-forums",
+          "categories": [
+            {
+              "track": "Data Science",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully. If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Competitive Programming",
+          "urlcode": "rdms-cp-forums",
+          "categories": [
+            {
+              "track": "Competitive Programming",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully. If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            },
+            {
+              "track": "Quality Assurance",
+              "name": "${ challenge.name }",
+              "urlcode": "$ { challenge.id }",
+              "group": {
+                "name": "${ challenge.name }",
+                "description": "Welcome to [${ challenge.name }](<%- challenge.url %>) Forum.",
+                "selfServiceDescription": "Welcome to ${ challenge.name } Forum.",
+                "privacy": "secret",
+                "type": "challenge"
+              },
+              "categories": [
+                {
+                  "name": "Code Documents",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-documents",
+                  "discussions": [
+                    {
+                      "title": "Challenge Overview",
+                      "body": "[Back to Challenge Details page](<%- challenge.url %>)\n<% _.forEach(challenge.prizeSets, function(prizeSet) { %>* <%- prizeSet.type %>: <% _.forEach(prizeSet.prizes, function(prize) { %><%- prize.value %>$ <% }) %>\n<% }); %>",
+                      "announce": 1,
+                      "closed": 1
+                    }
+                  ]
+                },
+                {
+                  "name": "Code Questions",
+                  "selfService": false,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                    {
+                      "title": "Welcome!",
+                      "body": "Please read the requirements carefully.  If you have questions, please let me know, I'll be glad to help you.",
+                      "announce": 0,
+                      "closed": 0
+                    }
+                  ]
+                },
+                {
+                  "name": "General Questions",
+                  "selfService": true,
+                  "urlcode": "${ challenge.id }-questions",
+                  "discussions": [
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "News, Programs & Events Discussions"
