@@ -32,7 +32,7 @@
     "rocketchat-api": "github:dhruvit-r/rocketchat-api-node",
     "r7insight_node": "^1.8.4",
     "superagent": "^5.1.1",
-    "tc-core-library-js": "github:appirio-tech/tc-core-library-js",
+    "tc-core-library-js": "github:topcoder-platform/tc-core-library-js",
     "winston": "^3.2.1",
     "winston-timestamp-colorize": "^1.0.4"
   },
