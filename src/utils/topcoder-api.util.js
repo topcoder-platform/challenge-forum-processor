@@ -106,7 +106,7 @@ async function getRoles (userId) {
  * @param {int} projectId Project's Id (int)
  */
 async function getProject (projectId) {
-  const path = `${config.TOPCODER.API_URL}/v5/projects/${projectId}`
+  const path = `${config.TOPCODER.API_URL}/v6/projects/${projectId}`
   return reqToAPI('GET', path)
 }
 
