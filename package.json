@@ -26,7 +26,7 @@
   "dependencies": {
     "config": "^3.2.4",
     "dotenv": "^8.2.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "no-kafka": "^3.4.3",
     "rocketchat-api": "github:dhruvit-r/rocketchat-api-node",
