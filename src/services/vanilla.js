@@ -16,7 +16,7 @@ const template = require(config.TEMPLATES.TEMPLATE_FILE_PATH)
  * @param {Object} challengeDetails the challenge details payload
  * @returns {string} the challenge type name or empty string
  */
-function getChallengeTypeName(challengeDetails) {
+function getChallengeTypeName (challengeDetails) {
   const type = _.get(challengeDetails, 'type')
   if (_.isString(type)) {
     return type
@@ -34,7 +34,7 @@ function getChallengeTypeName(challengeDetails) {
  * @param {Object} challengeDetails the challenge details payload
  * @returns {string} the challenge track name or empty string
  */
-function getChallengeTrackName(challenge, challengeDetails) {
+function getChallengeTrackName (challenge, challengeDetails) {
   const candidates = [
     _.get(challenge, 'track'),
     _.get(challenge, 'track.name'),
@@ -57,7 +57,7 @@ function getChallengeTrackName(challenge, challengeDetails) {
  * @param {Object|Array} rolesPayload the payload returned by the roles endpoint
  * @returns {Array<string>} normalized role names
  */
-function getTopcoderRoleNames(rolesPayload) {
+function getTopcoderRoleNames (rolesPayload) {
   const collectRoleNames = roles => _.chain(roles)
     .map(role => _.isObject(role) ? (role.roleName || role.name || '') : '')
     .filter(name => _.isString(name) && name.trim())
@@ -95,17 +95,11 @@ function getTopcoderRoleNames(rolesPayload) {
  * @param {Object} data the data from message payload
  * @returns {undefined}
  */
-async function manageVanillaUser(data) {
+async function manageVanillaUser (data) {
   const { challengeId, action, handle: username, projectRole, challengeRoles } = data
   if (!username) {
     return
   }
-  const isRegular = await isRegularChallenge({ id: challengeId });
-  if (!isRegular) {
-    logger.info(`Ignore managing users for RMD/MM challenge with challengeID=${challengeId}.`)
-    return
-  }
-
   logger.info(`Managing user for challengeID=${challengeId} [action=${action}, handle=${username}, projectRole=${JSON.stringify(projectRole)}, challengeRoles=${JSON.stringify(challengeRoles)}]...`)
   const { body: groups } = await vanillaClient.searchGroups(challengeId)
   const group = groups.length > 0 ? groups[0] : null
@@ -203,7 +197,7 @@ async function manageVanillaUser(data) {
   }
 }
 
-async function addTopcoderRoles(allVanillaRoles, topcoderRoleNames) {
+async function addTopcoderRoles (allVanillaRoles, topcoderRoleNames) {
   const allTopcoderRoles = _.filter(allVanillaRoles, { type: 'topcoder' })
   const userTopcoderRoles = _.filter(allTopcoderRoles, role => topcoderRoleNames.includes(role.name))
   const userTopcoderRoleIDs = _.map(userTopcoderRoles, 'roleID')
@@ -228,7 +222,7 @@ async function addTopcoderRoles(allVanillaRoles, topcoderRoleNames) {
  *
  * @param {Object} challenge the challenge data
  */
-async function createVanillaEntities(challenge) {
+async function createVanillaEntities (challenge) {
   logger.info(`Create: challengeID=${challenge.id}, status=${challenge.status}, selfService=${challenge.legacy ? challenge.legacy.selfService : null}:`)
   const { text: challengeDetailsData, status: responseStatus } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
@@ -256,9 +250,9 @@ async function createVanillaEntities(challenge) {
     throw new Error('Multiple discussions with type=\'CHALLENGE\' and provider=\'vanilla\' are not supported.')
   }
 
-  const isSelfService = challenge.legacy && challenge.legacy.selfService && challenge.legacy.selfService === true ? true : false
+  const isSelfService = !!(challenge.legacy && challenge.legacy.selfService && challenge.legacy.selfService === true)
   if (isSelfService && challenge.status !== constants.TOPCODER.CHALLENGE_STATUSES.ACTIVE) {
-    logger.info(`The forums are created only for the active self-service challenges.`)
+    logger.info('The forums are created only for the active self-service challenges.')
     return
   }
 
@@ -268,26 +262,26 @@ async function createVanillaEntities(challenge) {
     return _.includes(allProjectRoles, member.role)
   })
 
-  const isMM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.MM))
-    || (challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase())
-  const isRDM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM)
-    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase())
+  const isMM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.MM)) ||
+    (challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase())
+  const isRDM = (challengeDetails.tags && _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM)) ||
+    (challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase())
 
-  let vanillaForumsName;
+  let vanillaForumsName
   if (isMM) {
-    vanillaForumsName = constants.VANILLA.MMS_FORUM;
+    vanillaForumsName = constants.VANILLA.MMS_FORUM
   } else if (isRDM) {
-    vanillaForumsName = constants.VANILLA.RDMS_FORUM;
+    vanillaForumsName = constants.VANILLA.RDMS_FORUM
   } else {
-    vanillaForumsName = constants.VANILLA.CHALLENGES_FORUM;
+    vanillaForumsName = constants.VANILLA.CHALLENGES_FORUM
   }
 
   const isRegular = !(isMM || isRDM)
-  const archived = isRegular;
+  const archived = isRegular
 
   logger.info(`Vanilla template for the '${challengeDetails.name}' is '${vanillaForumsName}'`)
 
-  let forums = _.filter(template.categories, ['name', vanillaForumsName])
+  const forums = _.filter(template.categories, ['name', vanillaForumsName])
 
   if (!forums) {
     throw new Error(`The '${vanillaForumsName}' category wasn't found in the template json file`)
@@ -325,7 +319,7 @@ async function createVanillaEntities(challenge) {
 
       logger.info(`Creating Vanilla entities for the '${challengeDetailsDiscussion.name}' discussion using ${vanillaForumsName}`)
 
-      let group;
+      let group
 
       // Create a group for regular challenges
       if (isRegular) {
@@ -344,7 +338,7 @@ async function createVanillaEntities(challenge) {
           archived: archived
         })
 
-        group = groupData;
+        group = groupData
         if (!group.groupID) {
           throw Error('Couldn\'t create a group', JSON.stringify(group))
         }
@@ -424,26 +418,26 @@ async function createVanillaEntities(challenge) {
   }
 }
 
-async function isRegularChallenge(challenge) {
+async function isRegularChallenge (challenge) {
   const { text: challengeDetailsData } = await topcoderApi.getChallenge(challenge.id)
   const challengeDetails = JSON.parse(challengeDetailsData)
   const challengeType = getChallengeTypeName(challengeDetails).toLowerCase()
   const isMarathons = (challengeDetails.tags &&
     (_.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.MM) ||
-      _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM)))
-    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase()
-    || challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase()
-  return !isMarathons;
+      _.includes(challengeDetails.tags, constants.TOPCODER.CHALLENGE_TAGS.RDM))) ||
+    challengeType === constants.TOPCODER.CHALLENGE_TYPES.MM.toLowerCase() ||
+    challengeType === constants.TOPCODER.CHALLENGE_TYPES.RDM.toLowerCase()
+  return !isMarathons
 }
 /**
  * Update a vanilla forum group.
  *
  * @param {Object} challenge the challenge data
  */
-async function updateVanillaEntities(challenge) {
+async function updateVanillaEntities (challenge) {
   logger.info(`Update: challengeID=${challenge.id}, status=${challenge.status}, selService=${challenge.legacy.selfService}:`)
 
-  const isRegular = await isRegularChallenge(challenge);
+  const isRegular = await isRegularChallenge(challenge)
   if (!isRegular) {
     logger.info(`No updating for RMD/MM challenge with challengeID=${challenge.id}.`)
     return
@@ -468,15 +462,15 @@ async function updateVanillaEntities(challenge) {
     await vanillaClient.unarchiveGroup(groups[0].groupID)
     logger.info(`The group with groupID=${groups[0].groupID} was unarchived.`)
   } else if (_.includes([constants.TOPCODER.CHALLENGE_STATUSES.COMPLETED,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_REVIEW,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_SCREENING,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_SUBMISSIONS,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_WINNER_UNRESPONSIVE,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_CLIENT_REQUEST,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_REQUIREMENTS_INFEASIBLE,
-  constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_REGISTRATIONS,
-  constants.TOPCODER.CHALLENGE_STATUSES.DELETED], challenge.status)) {
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_REVIEW,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_FAILED_SCREENING,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_SUBMISSIONS,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_WINNER_UNRESPONSIVE,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_CLIENT_REQUEST,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_REQUIREMENTS_INFEASIBLE,
+    constants.TOPCODER.CHALLENGE_STATUSES.CANCELLED_ZERO_REGISTRATIONS,
+    constants.TOPCODER.CHALLENGE_STATUSES.DELETED], challenge.status)) {
     await vanillaClient.archiveGroup(groups[0].groupID)
     logger.info(`The group with groupID=${groups[0].groupID} was archived.`)
   }
@@ -503,7 +497,7 @@ async function updateVanillaEntities(challenge) {
   logger.info(`The group category was updated: ${JSON.stringify(updatedGroupCategory)}`)
 }
 
-async function createDiscussions(group, challenge, templateDiscussions, vanillaCategory) {
+async function createDiscussions (group, challenge, templateDiscussions, vanillaCategory) {
   for (const discussion of templateDiscussions) {
     // create a discussion
     const bodyTemplate = _.template(discussion.body)
@@ -526,7 +520,7 @@ async function createDiscussions(group, challenge, templateDiscussions, vanillaC
  * @param challengeRoles array
  * @returns {boolean}
  */
-function shouldWatchCategories(projectRole, challengeRoles) {
+function shouldWatchCategories (projectRole, challengeRoles) {
   // New user
   if (!projectRole && _.isEmpty(challengeRoles)) {
     return true
